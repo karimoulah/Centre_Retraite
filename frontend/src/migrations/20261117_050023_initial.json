@@ -5914,47 +5914,42 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "payload.users_sessions": {
-      "name": "users_sessions",
+    "payload.users_roles": {
+      "name": "users_roles",
       "schema": "payload",
       "columns": {
-        "_order": {
-          "name": "_order",
+        "order": {
+          "name": "order",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "_parent_id": {
-          "name": "_parent_id",
+        "parent_id": {
+          "name": "parent_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "id": {
-          "name": "id",
-          "type": "varchar",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp(3) with time zone",
+        "value": {
+          "name": "value",
+          "type": "enum_users_roles",
+          "typeSchema": "payload",
           "primaryKey": false,
           "notNull": false
         },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp(3) with time zone",
-          "primaryKey": false,
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
           "notNull": true
         }
       },
       "indexes": {
-        "users_sessions_order_idx": {
-          "name": "users_sessions_order_idx",
+        "users_roles_order_idx": {
+          "name": "users_roles_order_idx",
           "columns": [
             {
-              "expression": "_order",
+              "expression": "order",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -5965,11 +5960,11 @@
           "method": "btree",
           "with": {}
         },
-        "users_sessions_parent_id_idx": {
-          "name": "users_sessions_parent_id_idx",
+        "users_roles_parent_idx": {
+          "name": "users_roles_parent_idx",
           "columns": [
             {
-              "expression": "_parent_id",
+              "expression": "parent_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -5982,13 +5977,13 @@
         }
       },
       "foreignKeys": {
-        "users_sessions_parent_id_fk": {
-          "name": "users_sessions_parent_id_fk",
-          "tableFrom": "users_sessions",
+        "users_roles_parent_fk": {
+          "name": "users_roles_parent_fk",
+          "tableFrom": "users_roles",
           "tableTo": "users",
           "schemaTo": "payload",
           "columnsFrom": [
-            "_parent_id"
+            "parent_id"
           ],
           "columnsTo": [
             "id"
@@ -6013,6 +6008,24 @@
           "primaryKey": true,
           "notNull": true
         },
+        "email": {
+          "name": "email",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "api_user_id": {
+          "name": "api_user_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp(3) with time zone",
@@ -6026,58 +6039,24 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "reset_password_token": {
-          "name": "reset_password_token",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reset_password_expiration": {
-          "name": "reset_password_expiration",
-          "type": "timestamp(3) with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "salt": {
-          "name": "salt",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "hash": {
-          "name": "hash",
-          "type": "varchar",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reset_password_requested_at": {
-          "name": "reset_password_requested_at",
-          "type": "timestamp(3) with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "login_attempts": {
-          "name": "login_attempts",
-          "type": "numeric",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "lock_until": {
-          "name": "lock_until",
-          "type": "timestamp(3) with time zone",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
+        "users_email_idx": {
+          "name": "users_email_idx",
+          "columns": [
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "users_updated_at_idx": {
           "name": "users_updated_at_idx",
           "columns": [
@@ -6104,21 +6083,6 @@
             }
           ],
           "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "users_email_idx": {
-          "name": "users_email_idx",
-          "columns": [
-            {
-              "expression": "email",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -7523,6 +7487,16 @@
         "published"
       ]
     },
+    "payload.enum_users_roles": {
+      "name": "enum_users_roles",
+      "schema": "payload",
+      "values": [
+        "ADMIN",
+        "FINANCE",
+        "TESTIMONIALS",
+        "MEMBER"
+      ]
+    },
     "payload.enum_site_settings_socials_platform": {
       "name": "enum_site_settings_socials_platform",
       "schema": "payload",
@@ -7563,6 +7537,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "ca3d14cf-47d8-4fc7-9cbe-e2538b8abcab",
+  "id": "e7c53d8a-a809-4b0a-a081-61f23d974a40",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

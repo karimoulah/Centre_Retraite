@@ -1,12 +1,14 @@
 import type { GlobalConfig } from 'payload';
 
+import { adminOnly } from '@/lib/cms/access';
+
 import { revalidateSite } from '@/lib/cms/revalidate';
 
 export const SiteSettings: GlobalConfig = {
   slug: 'siteSettings',
   label: 'Coordonnées et réglages du site',
   admin: { group: 'Site' },
-  access: { read: () => true },
+  access: { read: () => true, update: adminOnly },
   hooks: { afterChange: [revalidateSite] },
   fields: [
     { name: 'phone', label: 'Téléphone', type: 'text', required: true, admin: { description: 'Format affiché, par exemple (514) 555-0100.' } },

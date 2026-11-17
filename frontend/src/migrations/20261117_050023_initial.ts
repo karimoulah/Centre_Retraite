@@ -24,6 +24,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE TYPE "payload"."enum__pages_v_blocks_feature_rows_rows_link_type" AS ENUM('page', 'url');
   CREATE TYPE "payload"."enum__pages_v_blocks_testimonials_video_grid_action_type" AS ENUM('page', 'url');
   CREATE TYPE "payload"."enum__pages_v_version_status" AS ENUM('draft', 'published');
+  CREATE TYPE "payload"."enum_users_roles" AS ENUM('ADMIN', 'FINANCE', 'TESTIMONIALS', 'MEMBER');
   CREATE TYPE "payload"."enum_site_settings_socials_platform" AS ENUM('facebook', 'instagram', 'youtube', 'linkedin', 'x');
   CREATE TYPE "payload"."enum_main_menu_items_type" AS ENUM('page', 'url');
   CREATE TYPE "payload"."enum_footer_menus_columns_links_type" AS ENUM('page', 'url');
@@ -518,26 +519,20 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   	"focal_y" numeric
   );
   
-  CREATE TABLE "payload"."users_sessions" (
-  	"_order" integer NOT NULL,
-  	"_parent_id" integer NOT NULL,
-  	"id" varchar PRIMARY KEY NOT NULL,
-  	"created_at" timestamp(3) with time zone,
-  	"expires_at" timestamp(3) with time zone NOT NULL
+  CREATE TABLE "payload"."users_roles" (
+  	"order" integer NOT NULL,
+  	"parent_id" integer NOT NULL,
+  	"value" "payload"."enum_users_roles",
+  	"id" serial PRIMARY KEY NOT NULL
   );
   
   CREATE TABLE "payload"."users" (
   	"id" serial PRIMARY KEY NOT NULL,
-  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
-  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
   	"email" varchar NOT NULL,
-  	"reset_password_token" varchar,
-  	"reset_password_expiration" timestamp(3) with time zone,
-  	"salt" varchar,
-  	"hash" varchar,
-  	"reset_password_requested_at" timestamp(3) with time zone,
-  	"login_attempts" numeric DEFAULT 0,
-  	"lock_until" timestamp(3) with time zone
+  	"name" varchar,
+  	"api_user_id" varchar,
+  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
   
   CREATE TABLE "payload"."payload_kv" (
@@ -711,7 +706,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "payload"."_pages_v_blocks_content" ADD CONSTRAINT "_pages_v_blocks_content_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."_pages_v"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload"."_pages_v" ADD CONSTRAINT "_pages_v_parent_id_pages_id_fk" FOREIGN KEY ("parent_id") REFERENCES "payload"."pages"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "payload"."_pages_v" ADD CONSTRAINT "_pages_v_version_meta_image_id_media_id_fk" FOREIGN KEY ("version_meta_image_id") REFERENCES "payload"."media"("id") ON DELETE set null ON UPDATE no action;
-  ALTER TABLE "payload"."users_sessions" ADD CONSTRAINT "users_sessions_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "payload"."users"("id") ON DELETE cascade ON UPDATE no action;
+  ALTER TABLE "payload"."users_roles" ADD CONSTRAINT "users_roles_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "payload"."users"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload"."payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "payload"."payload_locked_documents"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload"."payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_pages_fk" FOREIGN KEY ("pages_id") REFERENCES "payload"."pages"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload"."payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_activities_fk" FOREIGN KEY ("activities_id") REFERENCES "payload"."activities"("id") ON DELETE cascade ON UPDATE no action;
@@ -866,11 +861,11 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "media_updated_at_idx" ON "payload"."media" USING btree ("updated_at");
   CREATE INDEX "media_created_at_idx" ON "payload"."media" USING btree ("created_at");
   CREATE UNIQUE INDEX "media_filename_idx" ON "payload"."media" USING btree ("filename");
-  CREATE INDEX "users_sessions_order_idx" ON "payload"."users_sessions" USING btree ("_order");
-  CREATE INDEX "users_sessions_parent_id_idx" ON "payload"."users_sessions" USING btree ("_parent_id");
+  CREATE INDEX "users_roles_order_idx" ON "payload"."users_roles" USING btree ("order");
+  CREATE INDEX "users_roles_parent_idx" ON "payload"."users_roles" USING btree ("parent_id");
+  CREATE UNIQUE INDEX "users_email_idx" ON "payload"."users" USING btree ("email");
   CREATE INDEX "users_updated_at_idx" ON "payload"."users" USING btree ("updated_at");
   CREATE INDEX "users_created_at_idx" ON "payload"."users" USING btree ("created_at");
-  CREATE UNIQUE INDEX "users_email_idx" ON "payload"."users" USING btree ("email");
   CREATE UNIQUE INDEX "payload_kv_key_idx" ON "payload"."payload_kv" USING btree ("key");
   CREATE INDEX "payload_locked_documents_global_slug_idx" ON "payload"."payload_locked_documents" USING btree ("global_slug");
   CREATE INDEX "payload_locked_documents_updated_at_idx" ON "payload"."payload_locked_documents" USING btree ("updated_at");
@@ -945,7 +940,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "payload"."_pages_v" CASCADE;
   DROP TABLE "payload"."activities" CASCADE;
   DROP TABLE "payload"."media" CASCADE;
-  DROP TABLE "payload"."users_sessions" CASCADE;
+  DROP TABLE "payload"."users_roles" CASCADE;
   DROP TABLE "payload"."users" CASCADE;
   DROP TABLE "payload"."payload_kv" CASCADE;
   DROP TABLE "payload"."payload_locked_documents" CASCADE;
@@ -980,6 +975,7 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TYPE "payload"."enum__pages_v_blocks_feature_rows_rows_link_type";
   DROP TYPE "payload"."enum__pages_v_blocks_testimonials_video_grid_action_type";
   DROP TYPE "payload"."enum__pages_v_version_status";
+  DROP TYPE "payload"."enum_users_roles";
   DROP TYPE "payload"."enum_site_settings_socials_platform";
   DROP TYPE "payload"."enum_main_menu_items_type";
   DROP TYPE "payload"."enum_footer_menus_columns_links_type";`)
