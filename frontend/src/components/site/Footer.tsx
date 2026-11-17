@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { ExternalLink, Mail, MapPin, Phone } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 import { siteConfig } from '@/config/site';
 import { getFooterMenus, getSiteSettings, resolveLink } from '@/lib/cms/payload';
 
+import { ContactCards } from './ContactCards';
 import { Logo } from './Logo';
 
 const platformLabels: Record<string, string> = {
@@ -16,36 +17,11 @@ const platformLabels: Record<string, string> = {
 
 export async function Footer() {
   const [settings, menus] = await Promise.all([getSiteSettings(), getFooterMenus()]);
-  const contacts = [
-    { icon: Phone, label: 'Téléphone', value: settings.phone, href: `tel:${settings.phone?.replace(/[^\d+]/g, '')}` },
-    { icon: MapPin, label: 'Adresse', value: settings.address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address ?? '')}` },
-    { icon: Mail, label: 'Courriel', value: settings.email, href: `mailto:${settings.email}` },
-  ];
-
   return (
     <footer className="bg-brand-900 text-text-on-dark">
       <div className="mx-auto max-w-site px-6 pt-16 pb-10 md:pt-24">
         <h2 className="sr-only">Nous joindre</h2>
-        <ul className="grid gap-4 md:grid-cols-3">
-          {contacts.map(({ icon: Icon, label, value, href }) => (
-            <li key={label}>
-              <a
-                href={href}
-                {...(label === 'Adresse' ? { target: '_blank', rel: 'noopener' } : {})}
-                className="flex h-full flex-col items-center gap-3 rounded-2xl border border-brand-800 px-6 py-10 text-center transition-colors hover:bg-brand-800"
-              >
-                <span className="bg-accent-400 flex size-12 items-center justify-center rounded-full text-brand-900">
-                  <Icon aria-hidden className="size-5" />
-                </span>
-                <span className="text-accent-400 text-lg font-medium">{label}</span>
-                <span className="whitespace-pre-line text-text-on-dark-muted">
-                  {value}
-                  {label === 'Adresse' && <span className="sr-only"> (ouvre une carte dans un nouvel onglet)</span>}
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
+        <ContactCards settings={settings} />
 
         <div className="mt-16 grid gap-10 md:grid-cols-[2fr_3fr]">
           <div>

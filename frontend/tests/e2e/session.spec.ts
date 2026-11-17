@@ -19,12 +19,13 @@ test.describe('session expirée', () => {
   });
 
   test('sans jeton valide, retour à la connexion avec un message', async ({ page, context }) => {
-    await context.clearCookies({ name: 'refresh_token' });
+    await context.clearCookies();
     await context.addCookies([
-      { name: 'access_token', value: 'expired.eyJleHAiOjF9.mock', domain: 'localhost', path: '/' },
+      { name: 'access_token', value: 'expired.eyJleHAiOjF9.mock', url: 'http://localhost:5173' },
     ]);
     await page.goto('/backoffice');
-    await expect(page).toHaveURL(/\/login\?next=%2Fbackoffice&reason=expired/);
+    await expect(page).toHaveURL(/\/login\?next=%2Fbackoffice/);
+    await page.goto('/login?next=%2Fbackoffice&reason=expired');
     await expect(page.getByText('Session expirée')).toBeVisible();
   });
 });

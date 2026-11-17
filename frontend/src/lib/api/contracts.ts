@@ -43,3 +43,17 @@ export type ListQuery = {
   order?: 'asc' | 'desc';
   q?: string;
 };
+
+/** GET /public/testimonials — approved testimonials (module F10). */
+export type PublicTestimonial = {
+  id: string;
+  type: 'TEXT' | 'AUDIO' | 'VIDEO';
+  authorName: string;
+  authorDetail?: string;
+  quote: string;
+  thumbnailUrl?: string | null;
+  durationSeconds?: number | null;
+  publishedAt: string;
+  /** Mock only: demo content that must be labelled as such on screen. */
+  demo?: boolean;
+};
