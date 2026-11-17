@@ -50,12 +50,15 @@ export const publicUser = ({ id, email, firstName, lastName, roles }: MockUser):
 const cookie = (name: string, value: string, maxAge: number) =>
   `${name}=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}`;
 
-export function issueMockSession(account: MockUser): string[] {
+/** Set-Cookie headers for a fresh mock session (also used by the middleware's mock refresh). */
+export function mockSessionCookies(userId: string): string[] {
   const now = Math.floor(Date.now() / 1000);
-  const access = encodeMockToken({ sub: account.id, roles: account.roles, exp: now + ACCESS_TTL_SECONDS });
-  const refresh = encodeMockToken({ sub: account.id, typ: 'refresh', exp: now + REFRESH_TTL_SECONDS });
+  const access = encodeMockToken({ sub: userId, exp: now + ACCESS_TTL_SECONDS });
+  const refresh = encodeMockToken({ sub: userId, typ: 'refresh', exp: now + REFRESH_TTL_SECONDS });
   return [cookie(ACCESS_COOKIE, access, ACCESS_TTL_SECONDS), cookie(REFRESH_COOKIE, refresh, REFRESH_TTL_SECONDS)];
 }
+
+export const issueMockSession = (account: MockUser) => mockSessionCookies(account.id);
 
 /** Returns the user behind the access cookie, or null (expired, missing, deactivated). */
 export function currentMockUser(request: MockRequest): MockUser | null {
