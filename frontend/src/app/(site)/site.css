@@ -1,19 +1,13 @@
-/* Tailwind and design tokens are added in F0-02. */
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  font-size: 18px;
-  line-height: 1.6;
-}
+@import 'tailwindcss';
+@import '../../styles/theme.css';
 
-.skip-link {
-  position: absolute;
-  left: -9999px;
-}
+/* Public site: 18px base text for an older audience. */
+@layer base {
+  html {
+    font-size: 112.5%;
+  }
 
-.skip-link:focus {
-  left: 8px;
-  top: 8px;
-  padding: 8px 16px;
-  background: #fff;
+  body {
+    line-height: 1.6;
+  }
 }
