@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { inter } from '@/app/fonts';
 import { siteConfig } from '@/config/site';
 import './site.css';
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="fr-CA">
+    <html lang="fr-CA" className={inter.variable}>
       <body>
         <a className="skip-link" href="#contenu">
           Aller au contenu

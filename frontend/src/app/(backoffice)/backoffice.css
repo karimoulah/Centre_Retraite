@@ -1,7 +1,9 @@
-/* Tailwind and design tokens are added in F0-02. */
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+@import 'tailwindcss';
+@import '../../styles/theme.css';
+
+/* Back-office: denser interface, 16px base text. */
+@layer base {
+  body {
+    line-height: 1.5;
+  }
 }
