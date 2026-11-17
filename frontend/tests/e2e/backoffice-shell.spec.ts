@@ -28,3 +28,17 @@ test.describe('mise en page du back-office', () => {
     await expect(page).toHaveURL('/forbidden');
   });
 });
+
+test.describe('accueil du back-office', () => {
+  test("l'administration a des raccourcis vers ses tâches", async ({ page }) => {
+    await loginAs(page, 'admin');
+    const main = page.locator('#contenu');
+    await expect(main.getByRole('link', { name: "Demandes d'adhésion" })).toBeVisible();
+    await expectNoA11yViolations(page);
+  });
+
+  test('les finances voient un message tant que leur module manque', async ({ page }) => {
+    await loginAs(page, 'finance');
+    await expect(page.getByText('Vos écrans arrivent bientôt')).toBeVisible();
+  });
+});
