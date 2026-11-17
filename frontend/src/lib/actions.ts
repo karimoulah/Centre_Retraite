@@ -36,7 +36,7 @@ export async function runAction<T>(
         status: error.status,
         code: error.code,
         message: error.message,
-        fieldErrors: error.status === 422 || error.status === 400 ? fieldErrors(error) : undefined,
+        fieldErrors: fieldErrors(error),
       };
     }
     console.error(error);

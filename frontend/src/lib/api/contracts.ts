@@ -94,3 +94,75 @@ export type AuditEntry = {
   before?: Record<string, unknown> | null;
   after?: Record<string, unknown> | null;
 };
+
+export const AGE_CATEGORIES = ['50_64', '65_74', '75_84', '85_PLUS'] as const;
+export type AgeCategory = (typeof AGE_CATEGORIES)[number];
+export const AGE_CATEGORY_LABELS: Record<AgeCategory, string> = {
+  '50_64': '50 à 64 ans',
+  '65_74': '65 à 74 ans',
+  '75_84': '75 à 84 ans',
+  '85_PLUS': '85 ans et plus',
+};
+
+export type MembershipStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export const MEMBERSHIP_STATUS_LABELS: Record<MembershipStatus, string> = {
+  PENDING: 'En attente',
+  APPROVED: 'Approuvée',
+  REJECTED: 'Refusée',
+};
+
+/** POST /memberships */
+export type MembershipApplication = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  ageCategory: AgeCategory;
+  /** Optional: only used for birthday wishes. */
+  birthDate?: string | null;
+  birthdayWishesConsent: boolean;
+  newsletterConsent: boolean;
+  turnstileToken: string;
+};
+
+/** GET /memberships, GET /memberships/:id */
+export type MembershipRequest = Omit<MembershipApplication, 'turnstileToken'> & {
+  id: string;
+  status: MembershipStatus;
+  submittedAt: string;
+  decidedAt: string | null;
+  decidedBy: string | null;
+  rejectionReason: string | null;
+  memberId: string | null;
+};
+
+/** GET /settings/membership */
+export type MembershipSettings = { autoApprove: boolean; updatedAt: string | null; updatedBy: string | null };
+
+export type Consent = { granted: boolean; updatedAt: string | null };
+
+/** GET /members, GET /members/:id */
+export type Member = {
+  id: string;
+  memberNumber: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string | null;
+  address: string | null;
+  ageCategory: AgeCategory;
+  birthDate: string | null;
+  active: boolean;
+  joinedAt: string;
+  consents: { birthdayWishes: Consent; newsletter: Consent; testimonialPublication: Consent };
+};
+
+export type MemberConsentKey = keyof Member['consents'];
+
+/** PATCH /members/:id (back-office) */
+export type UpdateMemberRequest = Partial<Pick<Member, 'firstName' | 'lastName' | 'email' | 'phone' | 'address' | 'ageCategory' | 'birthDate'>>;
+/** PATCH /me/profile (member): only these fields are editable by the member. */
+export type UpdateMyProfileRequest = Pick<Member, 'phone' | 'address'>;
+/** PUT /me/consents */
+export type UpdateConsentsRequest = Partial<Record<MemberConsentKey, boolean>>;
