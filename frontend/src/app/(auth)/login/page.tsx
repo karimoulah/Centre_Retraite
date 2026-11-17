@@ -24,6 +24,9 @@ export default async function LoginPage({ searchParams }: Props) {
             Pour votre sécurité, vous avez été déconnecté. Reconnectez-vous pour continuer.
           </FormAlert>
         )}
+        {reason === 'reset' && (
+          <FormAlert tone="success">Votre mot de passe a été modifié. Vous pouvez vous connecter.</FormAlert>
+        )}
         {reason === 'logout' && (
           <FormAlert tone="success">Vous êtes déconnecté.</FormAlert>
         )}

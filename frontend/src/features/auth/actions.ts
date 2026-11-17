@@ -10,7 +10,14 @@ import { isApiError } from '@/lib/api/errors';
 import { ACCESS_COOKIE, REFRESH_COOKIE } from '@/lib/auth/config';
 import { homeFor, safeNext } from '@/lib/session';
 
-import { loginSchema, type LoginValues } from './schemas';
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  resetPasswordSchema,
+  type ForgotPasswordValues,
+  type LoginValues,
+  type ResetPasswordValues,
+} from './schemas';
 
 const loginMessages: Record<number, string> = {
   // Same message whether the e-mail exists or not.
@@ -51,4 +58,33 @@ export async function logoutAction(): Promise<void> {
   cookieStore.delete(ACCESS_COOKIE);
   cookieStore.delete(REFRESH_COOKIE);
   redirect('/');
+}
+
+/** Always answers the same way, whether the address has an account or not. */
+export async function forgotPasswordAction(values: ForgotPasswordValues): Promise<ActionResult> {
+  const parsed = forgotPasswordSchema.safeParse(values);
+  if (!parsed.success) return { ok: false, message: 'Vérifiez le champ courriel.' };
+  try {
+    await api('/auth/password/forgot', { method: 'POST', body: parsed.data, redirectOnUnauthorized: false });
+  } catch (error) {
+    if (isApiError(error) && error.status === 429) {
+      return { ok: false, status: 429, message: 'Trop de demandes. Patientez quelques minutes avant de réessayer.' };
+    }
+    // Any other error stays silent so the answer never reveals whether an account exists.
+  }
+  return { ok: true };
+}
+
+export async function resetPasswordAction(token: string, values: ResetPasswordValues): Promise<ActionResult> {
+  const parsed = resetPasswordSchema.safeParse(values);
+  if (!parsed.success) return { ok: false, message: 'Vérifiez les champs du formulaire.' };
+  try {
+    await api('/auth/password/reset', { method: 'POST', body: { token, password: parsed.data.password }, redirectOnUnauthorized: false });
+  } catch (error) {
+    if (isApiError(error) && (error.status === 410 || error.status === 400 || error.status === 404)) {
+      return { ok: false, status: error.status, code: 'TOKEN_EXPIRED', message: 'Ce lien a expiré ou a déjà été utilisé.' };
+    }
+    return runAction(() => Promise.reject(error));
+  }
+  redirect('/login?reason=reset');
 }
