@@ -37,6 +37,8 @@ export const mockUsers = () =>
     user('u-testimonials', 'temoignages@lesaines.test', 'Julie', 'Gagnon', ['TESTIMONIALS']),
     user('u-member', 'membre@lesaines.test', 'Robert', 'Lavoie', ['MEMBER']),
     user('u-multi', 'direction@lesaines.test', 'Claire', 'Bouchard', ['ADMIN', 'FINANCE']),
+    // Already locked, to demonstrate the locked-account message.
+    { ...user('u-locked', 'bloque@lesaines.test', 'Paul', 'Côté', ['MEMBER']), failedAttempts: MAX_FAILED_ATTEMPTS },
   ]);
 
 export const publicUser = ({ id, email, firstName, lastName, roles }: MockUser): SessionUser => ({
