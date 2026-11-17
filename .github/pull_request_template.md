@@ -1,5 +1,5 @@
-## Ticket
-S1-XX
+## Tâche
+F0-XX
 
 ## Ce qui change
 -
@@ -7,8 +7,11 @@ S1-XX
 ## Comment tester
 1.
 
+## Captures
+<!-- Pour toute page du portail : capture comparée à la maquette. -->
+
 ## Liste de contrôle
-- [ ] lint, build et tests passent en local
+- [ ] `npm run lint`, `npm run typecheck` et les tests ciblés passent en local
 - [ ] pas de secret dans le code
-- [ ] migration Prisma incluse si le schéma a changé
+- [ ] `npm run generate:types` relancé si une collection Payload a changé
 - [ ] l'autre développeur a relu
