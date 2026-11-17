@@ -1,38 +1,32 @@
 {
-  "name": "centre-frontend",
+  "name": "lesaines-web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "lint": "eslint src",
+    "dev": "next dev -p 5173",
+    "build": "next build",
+    "start": "next start -p 5173",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
     "format": "prettier --write src"
   },
   "dependencies": {
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "react-router-dom": "6.30.6"
+    "next": "15.4.11",
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
   },
   "devDependencies": {
-    "@eslint/js": "9.39.5",
-    "@testing-library/jest-dom": "6.9.1",
-    "@testing-library/react": "16.3.0",
-    "@types/node": "22.20.5",
-    "@types/react": "18.3.23",
-    "@types/react-dom": "18.3.7",
-    "@vitejs/plugin-react": "4.7.0",
+    "@eslint/eslintrc": "3.3.7",
+    "@types/node": "22.19.9",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
     "eslint": "9.39.5",
-    "eslint-plugin-react-hooks": "5.2.0",
-    "jsdom": "25.0.1",
+    "eslint-config-next": "15.4.11",
     "prettier": "3.9.10",
-    "typescript": "5.9.3",
-    "typescript-eslint": "8.72.1",
-    "vite": "5.4.21",
-    "vitest": "2.1.9"
-  },
-  "overrides": { "esbuild": "0.21.5" }
+    "typescript": "5.9.3"
+  }
 }
