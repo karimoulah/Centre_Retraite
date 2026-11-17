@@ -134,3 +134,17 @@ export const authRoutes: MockRoute[] = [
     },
   },
 ];
+
+/** Demo tokens: "demo-reset-token" works, anything else is expired. */
+export const passwordRoutes: MockRoute[] = [
+  { method: 'POST', path: '/auth/password/forgot', handler: () => ok({ sent: true }) },
+  {
+    method: 'POST',
+    path: '/auth/password/reset',
+    handler: ({ body }) => {
+      const { token } = (body ?? {}) as { token?: string; password?: string };
+      if (token !== 'demo-reset-token') return fail(410, 'TOKEN_EXPIRED', 'Ce lien a expiré.');
+      return ok({ reset: true });
+    },
+  },
+];
