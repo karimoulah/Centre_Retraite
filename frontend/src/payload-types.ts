@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     pages: Page;
+    activities: Activity;
     media: Media;
     users: User;
     'payload-kv': PayloadKv;
@@ -78,6 +79,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
+    activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -138,8 +140,263 @@ export interface Page {
    * « home » pour la page d’accueil ; sinon, par exemple « a-propos ».
    */
   slug: string;
+  layout?:
+    | (
+        | {
+            /**
+             * Par exemple « 4,9/5 · 810 avis ». Facultatif.
+             */
+            badge?: string | null;
+            title: string;
+            text?: string | null;
+            /**
+             * Laissez le libellé vide pour ne pas afficher de bouton.
+             */
+            primaryAction?: {
+              label?: string | null;
+              type?: ('page' | 'url') | null;
+              page?: (number | null) | Page;
+              /**
+               * Adresse complète (https://…) ou chemin du site (/contact).
+               */
+              url?: string | null;
+            };
+            image?: (number | null) | Media;
+            medallion?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'hero';
+          }
+        | {
+            theme?: ('light' | 'dark') | null;
+            items?:
+              | {
+                  value: string;
+                  label: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'stats';
+          }
+        | {
+            theme?: ('light' | 'dark') | null;
+            title?: string | null;
+            logos?:
+              | {
+                  name: string;
+                  logo?: (number | null) | Media;
+                  url?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'logoStrip';
+          }
+        | {
+            /**
+             * Petit texte au-dessus du titre, par exemple « À propos du Centre ».
+             */
+            eyebrow?: string | null;
+            title: string;
+            text?: string | null;
+            image?: (number | null) | Media;
+            highlight?: {
+              value?: string | null;
+              label?: string | null;
+            };
+            items?:
+              | {
+                  title: string;
+                  content: string;
+                  id?: string | null;
+                }[]
+              | null;
+            showUpcomingActivities?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'aboutSplit';
+          }
+        | {
+            /**
+             * Petit texte au-dessus du titre, par exemple « À propos du Centre ».
+             */
+            eyebrow?: string | null;
+            title: string;
+            text?: string | null;
+            limit?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'upcomingActivities';
+          }
+        | {
+            image?: (number | null) | Media;
+            title: string;
+            /**
+             * Laissez le libellé vide pour ne pas afficher de bouton.
+             */
+            action?: {
+              label?: string | null;
+              type?: ('page' | 'url') | null;
+              page?: (number | null) | Page;
+              /**
+               * Adresse complète (https://…) ou chemin du site (/contact).
+               */
+              url?: string | null;
+            };
+            cards?:
+              | {
+                  title: string;
+                  text?: string | null;
+                  link?: {
+                    label?: string | null;
+                    type?: ('page' | 'url') | null;
+                    page?: (number | null) | Page;
+                    /**
+                     * Adresse complète (https://…) ou chemin du site (/contact).
+                     */
+                    url?: string | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'featureSplit';
+          }
+        | {
+            /**
+             * Petit texte au-dessus du titre, par exemple « À propos du Centre ».
+             */
+            eyebrow?: string | null;
+            title: string;
+            /**
+             * Laissez le libellé vide pour ne pas afficher de bouton.
+             */
+            action?: {
+              label?: string | null;
+              type?: ('page' | 'url') | null;
+              page?: (number | null) | Page;
+              /**
+               * Adresse complète (https://…) ou chemin du site (/contact).
+               */
+              url?: string | null;
+            };
+            services?:
+              | {
+                  title: string;
+                  description: string;
+                  image?: (number | null) | Media;
+                  link?: {
+                    label?: string | null;
+                    type?: ('page' | 'url') | null;
+                    page?: (number | null) | Page;
+                    /**
+                     * Adresse complète (https://…) ou chemin du site (/contact).
+                     */
+                    url?: string | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'servicesList';
+          }
+        | {
+            title: string;
+            text?: string | null;
+            rows?:
+              | {
+                  title: string;
+                  text?: string | null;
+                  image?: (number | null) | Media;
+                  link?: {
+                    label?: string | null;
+                    type?: ('page' | 'url') | null;
+                    page?: (number | null) | Page;
+                    /**
+                     * Adresse complète (https://…) ou chemin du site (/contact).
+                     */
+                    url?: string | null;
+                  };
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'featureRows';
+          }
+        | {
+            title: string;
+            text?: string | null;
+            /**
+             * Laissez le libellé vide pour ne pas afficher de bouton.
+             */
+            action?: {
+              label?: string | null;
+              type?: ('page' | 'url') | null;
+              page?: (number | null) | Page;
+              /**
+               * Adresse complète (https://…) ou chemin du site (/contact).
+               */
+              url?: string | null;
+            };
+            limit?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonialsVideoGrid';
+          }
+        | {
+            title: string;
+            text?: string | null;
+            limit?: number | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonialCarousel';
+          }
+        | {
+            /**
+             * Les coordonnées viennent des réglages du site.
+             */
+            title?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contactCards';
+          }
+        | {
+            title?: string | null;
+            body: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            };
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'content';
+          }
+      )[]
+    | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    image?: (number | null) | Media;
+  };
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -159,6 +416,20 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activities".
+ */
+export interface Activity {
+  id: number;
+  title: string;
+  startsAt: string;
+  location?: string | null;
+  description?: string | null;
+  published?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -213,6 +484,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'activities';
+        value: number | Activity;
       } | null)
     | ({
         relationTo: 'media';
@@ -271,6 +546,242 @@ export interface PayloadMigration {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
+  layout?:
+    | T
+    | {
+        hero?:
+          | T
+          | {
+              badge?: T;
+              title?: T;
+              text?: T;
+              primaryAction?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    page?: T;
+                    url?: T;
+                  };
+              image?: T;
+              medallion?: T;
+              id?: T;
+              blockName?: T;
+            };
+        stats?:
+          | T
+          | {
+              theme?: T;
+              items?:
+                | T
+                | {
+                    value?: T;
+                    label?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        logoStrip?:
+          | T
+          | {
+              theme?: T;
+              title?: T;
+              logos?:
+                | T
+                | {
+                    name?: T;
+                    logo?: T;
+                    url?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        aboutSplit?:
+          | T
+          | {
+              eyebrow?: T;
+              title?: T;
+              text?: T;
+              image?: T;
+              highlight?:
+                | T
+                | {
+                    value?: T;
+                    label?: T;
+                  };
+              items?:
+                | T
+                | {
+                    title?: T;
+                    content?: T;
+                    id?: T;
+                  };
+              showUpcomingActivities?: T;
+              id?: T;
+              blockName?: T;
+            };
+        upcomingActivities?:
+          | T
+          | {
+              eyebrow?: T;
+              title?: T;
+              text?: T;
+              limit?: T;
+              id?: T;
+              blockName?: T;
+            };
+        featureSplit?:
+          | T
+          | {
+              image?: T;
+              title?: T;
+              action?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    page?: T;
+                    url?: T;
+                  };
+              cards?:
+                | T
+                | {
+                    title?: T;
+                    text?: T;
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          type?: T;
+                          page?: T;
+                          url?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        servicesList?:
+          | T
+          | {
+              eyebrow?: T;
+              title?: T;
+              action?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    page?: T;
+                    url?: T;
+                  };
+              services?:
+                | T
+                | {
+                    title?: T;
+                    description?: T;
+                    image?: T;
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          type?: T;
+                          page?: T;
+                          url?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        featureRows?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              rows?:
+                | T
+                | {
+                    title?: T;
+                    text?: T;
+                    image?: T;
+                    link?:
+                      | T
+                      | {
+                          label?: T;
+                          type?: T;
+                          page?: T;
+                          url?: T;
+                        };
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        testimonialsVideoGrid?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              action?:
+                | T
+                | {
+                    label?: T;
+                    type?: T;
+                    page?: T;
+                    url?: T;
+                  };
+              limit?: T;
+              id?: T;
+              blockName?: T;
+            };
+        testimonialCarousel?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              limit?: T;
+              id?: T;
+              blockName?: T;
+            };
+        contactCards?:
+          | T
+          | {
+              title?: T;
+              id?: T;
+              blockName?: T;
+            };
+        content?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activities_select".
+ */
+export interface ActivitiesSelect<T extends boolean = true> {
+  title?: T;
+  startsAt?: T;
+  location?: T;
+  description?: T;
+  published?: T;
   updatedAt?: T;
   createdAt?: T;
 }

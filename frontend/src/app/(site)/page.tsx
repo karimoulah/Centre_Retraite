@@ -1,11 +1,7 @@
-import { siteConfig } from '@/config/site';
+import { PageView, pageMetadata } from '@/features/pages/PageView';
 
-// Temporary home page: replaced by the CMS-driven page in F3-02.
+export const generateMetadata = () => pageMetadata('home');
+
 export default function HomePage() {
-  return (
-    <section>
-      <h1>{siteConfig.legalName}</h1>
-      <p>Le site est en cours de construction.</p>
-    </section>
-  );
+  return <PageView slug="home" />;
 }

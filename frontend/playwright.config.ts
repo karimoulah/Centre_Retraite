@@ -26,6 +26,6 @@ export default defineConfig({
     url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
-    env: { API_MODE: 'mock' },
+    env: { ...(process.env as Record<string, string>), API_MODE: 'mock' },
   },
 });
