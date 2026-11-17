@@ -7,10 +7,10 @@ Projet de maîtrise en génie logiciel (UQAM), réalisé par deux développeurs.
 
 ## Technologies
 
-- **Frontend** : React 18 avec TypeScript (React Router 6, tests avec Vitest et Testing Library). Le projet est compilé et servi en développement par Vite.
+- **Frontend** : Next.js 15 (App Router) avec React 19 et TypeScript, et Payload CMS 3 intégré (console d'administration du contenu sur `/admin`, tables dans le schéma `payload` de la même base).
 - **Backend** : NestJS 11 avec TypeScript, en monolithe modulaire. API REST documentée avec Swagger (OpenAPI).
 - **Base de données** : PostgreSQL 16, accessible par Prisma 6 (ORM et migrations).
-- **Qualité** : ESLint et Prettier, tests unitaires (Jest, Vitest), tests de bout en bout (Playwright), intégration continue avec GitHub Actions.
+- **Qualité** : ESLint et Prettier, tests unitaires (Jest), tests de bout en bout (Playwright), intégration continue avec GitHub Actions.
 - **Outillage local** : Docker Compose (PostgreSQL et Mailpit, un faux serveur de courriel pour le développement), Node.js 22.
 
 ## Structure du dépôt
@@ -20,8 +20,8 @@ backend/              le serveur NestJS
   src/                le code (config, health, prisma, modules à venir)
   prisma/             schema.prisma et migrations
   test/               tests de bout en bout du serveur
-frontend/             l'application React + TypeScript
-  src/                pages, mises en page, tests
+frontend/             l'application Next.js + Payload CMS
+  src/app/            portail (site), connexion (auth), back-office, console Payload
 e2e/                  tests Playwright (navigateur réel)
 docker/               script d'initialisation de la base
 docs/                 guide de démarrage, tickets du sprint 1, glossaire
@@ -50,6 +50,7 @@ Prérequis : Node.js 22, npm, Git et Docker (ou PostgreSQL 16 installé autremen
 3. Lancer le frontend, dans un autre terminal :
    ```
    cd frontend
+   cp .env.example .env
    npm install
    npm run dev
    ```
@@ -57,6 +58,7 @@ Prérequis : Node.js 22, npm, Git et Docker (ou PostgreSQL 16 installé autremen
 Adresses en développement :
 
 - Site : http://localhost:5173
+- Console du contenu (Payload) : http://localhost:5173/admin
 - API (état du système) : http://localhost:3000/api/v1/health
 - Documentation de l'API : http://localhost:3000/api/docs
 - Courriels de test (Mailpit) : http://localhost:8025, si le service est démarré
@@ -65,7 +67,7 @@ Adresses en développement :
 
 Backend (dans `backend/`) : `npm run lint`, `npm run build`, `npm test`, `npm run test:e2e`, `npx prisma studio` pour explorer la base.
 
-Frontend (dans `frontend/`) : `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`.
+Frontend (dans `frontend/`) : `npm run lint`, `npm run typecheck`, `npm run build`, `npm run generate:types` après un changement de collection Payload.
 
 Tests de bout en bout (dans `e2e/`, avec le site et l'API lancés) : `npm install`, `npx playwright install chromium`, `npm test`.
 

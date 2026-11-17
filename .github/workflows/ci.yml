@@ -31,6 +31,10 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: frontend } }
+    env:
+      # Payload needs a secret and a database URL at build time; no database is reached.
+      PAYLOAD_SECRET: ci-only-secret
+      DATABASE_URI: postgresql://centre:centre@localhost:5432/centre_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -38,5 +42,4 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test
       - run: npm run build

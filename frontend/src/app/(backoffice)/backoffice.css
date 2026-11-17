@@ -1,0 +1,7 @@
+/* Tailwind and design tokens are added in F0-02. */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
