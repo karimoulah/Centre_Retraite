@@ -57,3 +57,13 @@ export type PublicTestimonial = {
   /** Mock only: demo content that must be labelled as such on screen. */
   demo?: boolean;
 };
+
+/** POST /contact */
+export type ContactRequest = {
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  turnstileToken: string;
+};
