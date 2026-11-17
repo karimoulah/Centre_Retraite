@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const presets = [
+  { value: 'all', label: 'Toutes les dates' },
   { value: 'month', label: 'Ce mois-ci' },
   { value: 'last-month', label: 'Mois dernier' },
   { value: 'year', label: 'Cette année' },
@@ -62,7 +63,8 @@ export function PeriodPicker({ defaultPreset = 'month' }: { defaultPreset?: stri
           value={preset}
           onValueChange={(value) => {
             const range = presetRange(value);
-            update({ period: value, from: range?.from ?? searchParams.get('from'), to: range?.to ?? searchParams.get('to') });
+            if (value === 'all') update({ period: null, from: null, to: null });
+            else update({ period: value, from: range?.from ?? searchParams.get('from'), to: range?.to ?? searchParams.get('to') });
           }}
         >
           <SelectTrigger id={`${id}-preset`} className="min-w-52">

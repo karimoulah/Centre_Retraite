@@ -16,7 +16,8 @@ export async function loginAs(page: Page, account: keyof typeof accounts, next?:
   await page.getByLabel('Mot de passe').fill(PASSWORD);
   await page.getByRole('button', { name: 'Se connecter' }).click();
   await expect(page).not.toHaveURL(/\/login/);
-  await page.locator('html[data-hydrated="true"]').waitFor({ timeout: 30_000 });
+  // The Payload console (/admin) has its own layout, without the hydration marker.
+  if (!next?.startsWith('/admin')) await page.locator('html[data-hydrated="true"]').waitFor({ timeout: 30_000 });
 }
 
 /** Opens the back-office sidebar on small screens (retries until hydration is done). */
