@@ -6,7 +6,12 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import sharp from 'sharp';
 
 import { Media } from './collections/Media';
+import { Pages } from './collections/Pages';
+import { FooterMenus } from './globals/FooterMenus';
+import { MainMenu } from './globals/MainMenu';
+import { SiteSettings } from './globals/SiteSettings';
 import { Users } from './collections/Users';
+import { seed } from './seed';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -15,7 +20,8 @@ export default buildConfig({
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
   },
-  collections: [Users, Media],
+  collections: [Pages, Media, Users],
+  globals: [SiteSettings, MainMenu, FooterMenus],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET ?? '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
@@ -25,4 +31,7 @@ export default buildConfig({
     schemaName: 'payload',
   }),
   sharp,
+  onInit: async (payload) => {
+    if (process.env.PAYLOAD_SEED !== 'false') await seed(payload);
+  },
 });

@@ -1,10 +1,18 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+
 import { inter } from '@/app/fonts';
+import { Footer } from '@/components/site/Footer';
+import { Header } from '@/components/site/Header';
+import { Toaster } from '@/components/ui/sonner';
 import { siteConfig } from '@/config/site';
 import './site.css';
 
+// Pages read the CMS on each request; CMS reads are cached and invalidated on publish.
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:5173'),
   title: { default: siteConfig.name, template: `%s · ${siteConfig.name}` },
   description: siteConfig.legalName,
 };
@@ -12,11 +20,16 @@ export const metadata: Metadata = {
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr-CA" className={inter.variable}>
-      <body>
+      <body className="flex min-h-svh flex-col">
         <a className="skip-link" href="#contenu">
           Aller au contenu
         </a>
-        <main id="contenu">{children}</main>
+        <Header />
+        <main id="contenu" tabIndex={-1} className="flex-1 outline-none">
+          {children}
+        </main>
+        <Footer />
+        <Toaster />
       </body>
     </html>
   );
