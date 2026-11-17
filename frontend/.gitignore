@@ -1,3 +1,5 @@
 .next/
 next-env.d.ts
 media/
+playwright-report/
+test-results/
