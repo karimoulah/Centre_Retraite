@@ -5,9 +5,12 @@ import { notFound } from 'next/navigation';
 import { RenderBlocks } from '@/blocks/RenderBlocks';
 import { siteConfig } from '@/config/site';
 import { getPage } from '@/lib/cms/payload';
+import { getSession, hasRole } from '@/lib/session';
 
 export async function loadPage(slug: string) {
-  const { isEnabled: draft } = await draftMode();
+  const { isEnabled } = await draftMode();
+  // Draft content only for administrators, even if a draft-mode cookie is left over.
+  const draft = isEnabled && hasRole(await getSession(), 'ADMIN');
   const page = await getPage(slug, { draft });
   return { page, draft };
 }

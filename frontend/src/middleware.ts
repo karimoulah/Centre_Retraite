@@ -77,6 +77,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Skip Next internals, static files, the Payload console and API, and the NestJS proxy.
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|admin|api|backend|.*\\.[a-zA-Z0-9]+$).*)'],
+  // Skip Next internals, static files, the Payload API and the NestJS proxy.
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|api|backend|.*\\.[a-zA-Z0-9]+$).*)'],
 };
