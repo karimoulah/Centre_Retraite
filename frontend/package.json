@@ -27,6 +27,7 @@
     "@payloadcms/next": "3.93.0",
     "@payloadcms/richtext-lexical": "3.93.0",
     "@payloadcms/ui": "3.93.0",
+    "@tanstack/react-table": "8.21.3",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "graphql": "16.11.0",

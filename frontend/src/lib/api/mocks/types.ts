@@ -39,3 +39,25 @@ export function mockStore<T>(key: string, init: () => T): T {
   store[fullKey] ??= init();
   return store[fullKey];
 }
+
+/** Server-side search, sort and pagination over an in-memory list (mirrors the API's behaviour). */
+export function paginate<T extends Record<string, unknown>>(
+  items: T[],
+  query: URLSearchParams,
+  searchFields: (keyof T)[] = [],
+) {
+  const q = query.get('q')?.toLowerCase().trim();
+  let result = q
+    ? items.filter((item) => searchFields.some((field) => String(item[field] ?? '').toLowerCase().includes(q)))
+    : [...items];
+  const sort = query.get('sort');
+  if (sort) {
+    const direction = query.get('order') === 'desc' ? -1 : 1;
+    result.sort((a, b) => String(a[sort] ?? '').localeCompare(String(b[sort] ?? ''), 'fr-CA', { numeric: true }) * direction);
+  }
+  const pageSize = Number(query.get('pageSize')) || 25;
+  const page = Math.max(1, Number(query.get('page')) || 1);
+  const total = result.length;
+  result = result.slice((page - 1) * pageSize, page * pageSize);
+  return { items: result, total, page, pageSize };
+}
