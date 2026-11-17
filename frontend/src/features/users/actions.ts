@@ -18,7 +18,9 @@ import {
 
 const invalid: ActionResult<never> = { ok: false, message: 'Vérifiez les champs du formulaire.' };
 
-export async function createUserAction(values: CreateUserValues): Promise<ActionResult<{ id: string }>> {
+export async function createUserAction(
+  values: CreateUserValues,
+): Promise<ActionResult<{ id: string }>> {
   await requireRole('ADMIN');
   const parsed = createUserSchema.safeParse(values);
   if (!parsed.success) return invalid;
@@ -26,18 +28,25 @@ export async function createUserAction(values: CreateUserValues): Promise<Action
     const user = await api<UserAccount>('/users', { method: 'POST', body: parsed.data });
     return { id: user.id };
   }, `Invitation envoyée à ${parsed.data.email}.`);
-  revalidatePath('/backoffice/users');
+  if (result.ok) {
+    revalidatePath('/backoffice/users');
+  }
   return result;
 }
 
-export async function updateUserAction(id: string, values: UpdateUserValues): Promise<ActionResult> {
+export async function updateUserAction(
+  id: string,
+  values: UpdateUserValues,
+): Promise<ActionResult> {
   await requireRole('ADMIN');
   const parsed = updateUserSchema.safeParse(values);
   if (!parsed.success) return invalid;
   const result = await runAction(async () => {
     await api(`/users/${id}`, { method: 'PATCH', body: parsed.data });
   }, 'Fiche mise à jour.');
-  revalidatePath(`/backoffice/users/${id}`);
+  if (result.ok) {
+    revalidatePath(`/backoffice/users/${id}`);
+  }
   return result;
 }
 
@@ -48,7 +57,9 @@ export async function updateRolesAction(id: string, values: RolesValues): Promis
   const result = await runAction(async () => {
     await api(`/users/${id}/roles`, { method: 'PUT', body: parsed.data });
   }, 'Rôles mis à jour.');
-  revalidatePath(`/backoffice/users/${id}`);
+  if (result.ok) {
+    revalidatePath(`/backoffice/users/${id}`);
+  }
   return result;
 }
 
@@ -57,7 +68,9 @@ export async function deactivateUserAction(id: string): Promise<ActionResult> {
   const result = await runAction(async () => {
     await api(`/users/${id}/deactivate`, { method: 'POST' });
   }, 'Compte désactivé.');
-  revalidatePath(`/backoffice/users/${id}`);
-  revalidatePath('/backoffice/users');
+  if (result.ok) {
+    revalidatePath(`/backoffice/users/${id}`);
+    revalidatePath('/backoffice/users');
+  }
   return result;
 }

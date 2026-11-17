@@ -33,3 +33,23 @@ export async function gotoReady(page: Page, url: string) {
   await page.goto(url);
   await page.locator('html[data-hydrated="true"]').waitFor({ timeout: 30_000 });
 }
+
+/** Submits a membership application through the public form; returns the unique last name used. */
+export async function submitApplication(page: Page) {
+  const lastName = `Essai${Date.now()}${Math.floor(Math.random() * 1000)}`;
+  await gotoReady(page, '/membership');
+  await page.getByLabel('Prénom').fill('Simone');
+  await page.getByRole('textbox', { name: 'Nom', exact: true }).fill(lastName);
+  await page.getByLabel('Adresse courriel').fill(`${lastName.toLowerCase()}@example.org`);
+  await page.getByRole('radio', { name: '65 à 74 ans' }).check();
+  await page.getByRole('button', { name: 'Envoyer ma demande d’adhésion' }).click();
+  await expect(page).toHaveURL(/\/membership\/confirmation/);
+  return lastName;
+}
+
+/** Opens the back-office detail page of the application made by `lastName`. */
+export async function openApplication(page: Page, lastName: string) {
+  await gotoReady(page, `/backoffice/memberships?q=${lastName}`);
+  await page.getByRole('link', { name: `Simone ${lastName}` }).click();
+  await expect(page.getByRole('heading', { level: 1, name: `Simone ${lastName}` })).toBeVisible();
+}
