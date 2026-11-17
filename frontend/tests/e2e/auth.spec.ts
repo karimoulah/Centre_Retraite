@@ -26,7 +26,7 @@ test.describe('connexion', () => {
 
   test('un mauvais mot de passe affiche un message générique', async ({ page }) => {
     await page.goto('/login');
-    await login(page, 'finance@lesaines.test', 'mauvais');
+    await login(page, 'inconnu@lesaines.test', 'mauvais');
     await expect(page.getByRole('alert').filter({ hasText: /./ })).toContainText('Courriel ou mot de passe incorrect.');
   });
 
@@ -47,5 +47,19 @@ test.describe('connexion', () => {
     await page.goto('/login?next=//evil.example.com');
     await login(page, 'admin@lesaines.test');
     await expect(page).toHaveURL('/backoffice');
+  });
+});
+
+test.describe('déconnexion', () => {
+  test("ramène à l'accueil et efface la session", async ({ page, context }) => {
+    await page.goto('/login');
+    await login(page, 'finance@lesaines.test');
+    await expect(page).toHaveURL('/backoffice');
+    await page.getByRole('button', { name: 'Se déconnecter' }).click();
+    await expect(page).toHaveURL('/');
+    const names = (await context.cookies()).map((c) => c.name);
+    expect(names).not.toContain('access_token');
+    await page.goto('/backoffice');
+    await expect(page).toHaveURL(/\/login/);
   });
 });

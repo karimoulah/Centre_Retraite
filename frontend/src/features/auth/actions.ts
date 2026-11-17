@@ -1,11 +1,13 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { runAction, type ActionResult } from '@/lib/actions';
 import { api } from '@/lib/api/api';
 import type { LoginResponse } from '@/lib/api/contracts';
 import { isApiError } from '@/lib/api/errors';
+import { ACCESS_COOKIE, REFRESH_COOKIE } from '@/lib/auth/config';
 import { homeFor, safeNext } from '@/lib/session';
 
 import { loginSchema, type LoginValues } from './schemas';
@@ -36,4 +38,17 @@ export async function loginAction(values: LoginValues, next?: string): Promise<A
     return runAction(() => Promise.reject(error));
   }
   redirect(destination);
+}
+
+/** Ends the session on the API, clears the cookies and goes back to the home page. */
+export async function logoutAction(): Promise<void> {
+  try {
+    await api('/auth/logout', { method: 'POST', forwardSetCookies: true, redirectOnUnauthorized: false });
+  } catch {
+    // The session is cleared locally below even if the API is unreachable.
+  }
+  const cookieStore = await cookies();
+  cookieStore.delete(ACCESS_COOKIE);
+  cookieStore.delete(REFRESH_COOKIE);
+  redirect('/');
 }
