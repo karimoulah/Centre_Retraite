@@ -21,7 +21,7 @@ type Options<TValues extends FieldValues, TData> = {
  * Standard form wiring: zod validation in the browser, Server Action submit,
  * API field errors mapped onto fields, other errors shown above the form.
  */
-export function useActionForm<TValues extends FieldValues, TData = undefined>({
+export function useActionForm<TValues extends FieldValues, TData = void>({
   schema,
   action,
   defaultValues,

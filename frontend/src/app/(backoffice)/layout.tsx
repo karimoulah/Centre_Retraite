@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { inter } from '@/app/fonts';
+import { HydrationMarker } from '@/components/HydrationMarker';
 import { Toaster } from '@/components/ui/sonner';
 import { siteConfig } from '@/config/site';
 import './backoffice.css';
@@ -17,6 +18,7 @@ export default function BackofficeLayout({ children }: { children: ReactNode }) 
       <body>
         {children}
         <Toaster />
+        <HydrationMarker />
       </body>
     </html>
   );

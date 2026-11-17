@@ -11,7 +11,7 @@ export const accounts = {
 
 /** Logs in through the real form and waits for the redirect. */
 export async function loginAs(page: Page, account: keyof typeof accounts, next?: string) {
-  await page.goto(next ? `/login?next=${encodeURIComponent(next)}` : '/login');
+  await gotoReady(page, next ? `/login?next=${encodeURIComponent(next)}` : '/login');
   await page.getByLabel('Adresse courriel').fill(accounts[account]);
   await page.getByLabel('Mot de passe').fill(PASSWORD);
   await page.getByRole('button', { name: 'Se connecter' }).click();
@@ -26,4 +26,10 @@ export async function openSidebarIfMobile(page: Page, isMobile: boolean) {
     if (!(await nav.isVisible())) await page.getByRole('button', { name: 'Afficher ou masquer le menu' }).first().click();
     await expect(nav).toBeVisible({ timeout: 1000 });
   }).toPass({ timeout: 15_000 });
+}
+
+/** Navigates and waits until React is interactive (see HydrationMarker). */
+export async function gotoReady(page: Page, url: string) {
+  await page.goto(url);
+  await page.locator('html[data-hydrated="true"]').waitFor({ timeout: 30_000 });
 }

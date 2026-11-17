@@ -5,7 +5,7 @@ import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { fieldErrors, isApiError, type FieldErrors } from '@/lib/api/errors';
 
 /** What every Server Action returns to its form. */
-export type ActionResult<T = undefined> =
+export type ActionResult<T = void> =
   | { ok: true; data?: T; message?: string }
   | { ok: false; status?: number; code?: string; message: string; fieldErrors?: FieldErrors };
 
