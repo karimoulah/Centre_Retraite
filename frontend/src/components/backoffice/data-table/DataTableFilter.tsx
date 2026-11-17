@@ -24,7 +24,7 @@ export function DataTableFilter({ param, label, options, defaultValue = 'all', a
   return (
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={id}>{label}</Label>
-      <Select value={searchParams.get(param) ?? defaultValue} onValueChange={(value) => setParams({ [param]: value === defaultValue && defaultValue === 'all' ? null : value })}>
+      <Select value={searchParams.get(param) ?? defaultValue} onValueChange={(value) => setParams({ [param]: value === defaultValue ? null : value })}>
         <SelectTrigger id={id} className="min-w-48">
           <SelectValue />
         </SelectTrigger>

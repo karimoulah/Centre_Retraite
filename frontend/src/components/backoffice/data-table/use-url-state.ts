@@ -14,7 +14,7 @@ export function useUrlState() {
     (values: Record<string, string | number | null | undefined>, { keepPage = false } = {}) => {
       const params = new URLSearchParams(searchParams);
       for (const [key, value] of Object.entries(values)) {
-        if (value === null || value === undefined || value === '' || value === 'all') params.delete(key);
+        if (value === null || value === undefined || value === '') params.delete(key);
         else params.set(key, String(value));
       }
       if (!keepPage && !('page' in values)) params.delete('page');
