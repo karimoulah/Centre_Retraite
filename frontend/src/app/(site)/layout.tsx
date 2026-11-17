@@ -6,6 +6,7 @@ import { inter } from '@/app/fonts';
 import { Footer } from '@/components/site/Footer';
 import { Header } from '@/components/site/Header';
 import { PreviewBanner } from '@/components/site/PreviewBanner';
+import { HydrationMarker } from '@/components/HydrationMarker';
 import { Toaster } from '@/components/ui/sonner';
 import { siteConfig } from '@/config/site';
 import './site.css';
@@ -34,6 +35,7 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
         </main>
         <Footer />
         <Toaster />
+        <HydrationMarker />
       </body>
     </html>
   );

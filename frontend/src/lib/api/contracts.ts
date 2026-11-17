@@ -67,3 +67,30 @@ export type ContactRequest = {
   message: string;
   turnstileToken: string;
 };
+
+/** Back-office user account (GET /users, GET /users/:id). */
+export type UserAccount = SessionUser & {
+  active: boolean;
+  invitationPending: boolean;
+  createdAt: string;
+  lastLoginAt: string | null;
+};
+
+/** POST /users — sends an invitation e-mail; the person chooses a password. */
+export type CreateUserRequest = Pick<SessionUser, 'email' | 'firstName' | 'lastName' | 'roles'>;
+export type UpdateUserRequest = Pick<SessionUser, 'firstName' | 'lastName'>;
+/** PUT /users/:id/roles */
+export type UpdateRolesRequest = { roles: Role[] };
+
+/** GET /audit-logs */
+export type AuditEntry = {
+  id: string;
+  at: string;
+  actor: { id: string; name: string } | null;
+  action: string;
+  entityType: string;
+  entityId: string;
+  entityLabel: string;
+  before?: Record<string, unknown> | null;
+  after?: Record<string, unknown> | null;
+};

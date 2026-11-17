@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 import { inter } from '@/app/fonts';
 import { Logo } from '@/components/site/Logo';
+import { HydrationMarker } from '@/components/HydrationMarker';
 import { Toaster } from '@/components/ui/sonner';
 import { siteConfig } from '@/config/site';
 import '../(site)/site.css';
@@ -37,6 +38,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           </main>
         </div>
         <Toaster />
+        <HydrationMarker />
       </body>
     </html>
   );

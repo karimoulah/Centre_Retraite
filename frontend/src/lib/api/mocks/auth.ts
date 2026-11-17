@@ -1,7 +1,7 @@
 import type { Role, SessionUser } from '../contracts';
 import { ACCESS_COOKIE, REFRESH_COOKIE } from '../../auth/config';
 import { decodeJwtPayload, encodeMockToken } from '../../auth/token';
-import { fail, mockStore, ok, type MockRequest, type MockRoute } from './types';
+import { fail, mockStore, ok, type MockRequest, type MockResponse, type MockRoute } from './types';
 
 export const MOCK_PASSWORD = 'Motdepasse123!';
 export const ACCESS_TTL_SECONDS = 15 * 60;
@@ -11,6 +11,7 @@ const MAX_FAILED_ATTEMPTS = 5;
 export type MockUser = SessionUser & {
   password: string;
   active: boolean;
+  invitationPending: boolean;
   failedAttempts: number;
   createdAt: string;
   lastLoginAt: string | null;
@@ -24,6 +25,7 @@ const user = (id: string, email: string, firstName: string, lastName: string, ro
   roles,
   password: MOCK_PASSWORD,
   active: true,
+  invitationPending: false,
   failedAttempts: 0,
   createdAt: '2026-11-01T14:00:00.000Z',
   lastLoginAt: null,
@@ -72,6 +74,20 @@ export function currentMockUser(request: MockRequest): MockUser | null {
 }
 
 export const unauthorized = () => fail(401, 'UNAUTHORIZED', 'Authentification requise.');
+
+/** Returns the current user if they hold one of `roles`, or the 401/403 response to send. */
+export function guard(request: MockRequest, ...roles: Role[]): MockUser | MockResponse {
+  const account = currentMockUser(request);
+  if (!account) return unauthorized();
+  if (roles.length && !roles.some((role) => account.roles.includes(role))) {
+    return fail(403, 'FORBIDDEN', "Vous n'avez pas accès à cette ressource.");
+  }
+  return account;
+}
+
+export const isResponse = (value: MockUser | MockResponse): value is MockResponse => 'status' in value;
+
+export const actorOf = (account: MockUser) => ({ id: account.id, name: `${account.firstName} ${account.lastName}` });
 
 export const authRoutes: MockRoute[] = [
   {
