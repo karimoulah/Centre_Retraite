@@ -1,13 +1,8 @@
-import { LogoutButton } from '@/features/auth/components/LogoutButton';
+import { PageHeader } from '@/components/backoffice/PageHeader';
 import { requireRole } from '@/lib/session';
 
-// Placeholder: the back-office shell (sidebar, role filtering) is built in F2-01.
+// Replaced by the role-based shortcuts in F2-05.
 export default async function BackofficeHomePage() {
   const user = await requireRole('ADMIN', 'FINANCE', 'TESTIMONIALS');
-  return (
-    <main id="contenu" className="p-8">
-      <h1 className="text-3xl">Bonjour {user.firstName}</h1>
-      <LogoutButton className="mt-6" variant="outline" />
-    </main>
-  );
+  return <PageHeader title={`Bonjour ${user.firstName}`} />;
 }

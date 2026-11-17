@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+
 import { inter } from '@/app/fonts';
+import { Toaster } from '@/components/ui/sonner';
 import { siteConfig } from '@/config/site';
 import './backoffice.css';
 
@@ -12,7 +14,10 @@ export const metadata: Metadata = {
 export default function BackofficeLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr-CA" className={inter.variable}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

@@ -55,7 +55,12 @@ test.describe('déconnexion', () => {
     await page.goto('/login');
     await login(page, 'finance@lesaines.test');
     await expect(page).toHaveURL('/backoffice');
-    await page.getByRole('button', { name: 'Se déconnecter' }).click();
+    const logout = page.getByRole('menuitem', { name: 'Se déconnecter' });
+    await expect(async () => {
+      if (!(await logout.isVisible())) await page.getByRole('button', { name: /menu du compte/ }).click();
+      await expect(logout).toBeVisible({ timeout: 1000 });
+    }).toPass({ timeout: 15_000 });
+    await logout.click();
     await expect(page).toHaveURL('/');
     const names = (await context.cookies()).map((c) => c.name);
     expect(names).not.toContain('access_token');
