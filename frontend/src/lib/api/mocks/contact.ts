@@ -1,6 +1,6 @@
 import { fail, mockStore, ok, type MockRoute } from './types';
 
-const sent = () => mockStore<Map<string, number[]>>('contact-sent', () => new Map());
+const sent = () => mockStore<Map<string, number[]>>('contact-sent-by-email', () => new Map());
 
 export const contactRoutes: MockRoute[] = [
   {
