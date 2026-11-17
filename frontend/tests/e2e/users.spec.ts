@@ -19,7 +19,7 @@ test.describe('utilisateurs (ADMIN)', () => {
   test('inviter un utilisateur, puis modifier ses rôles et le désactiver', async ({ page }) => {
     const email = `nouveau+${Date.now()}@lesaines.test`;
     await gotoReady(page, '/backoffice/users/new');
-    await page.getByLabel('Prénom').fill('Nadia');
+    await page.getByRole('textbox', { name: 'Prénom', exact: true }).fill('Nadia');
     await page.getByRole('textbox', { name: 'Nom', exact: true }).fill('Benali');
     await page.getByLabel('Adresse courriel').fill(email);
     await page.getByRole('checkbox', { name: /Témoignages/ }).check();
@@ -41,7 +41,7 @@ test.describe('utilisateurs (ADMIN)', () => {
 
   test('un courriel déjà utilisé est signalé sous le champ', async ({ page }) => {
     await gotoReady(page, '/backoffice/users/new');
-    await page.getByLabel('Prénom').fill('Double');
+    await page.getByRole('textbox', { name: 'Prénom', exact: true }).fill('Double');
     await page.getByRole('textbox', { name: 'Nom', exact: true }).fill('Compte');
     await page.getByLabel('Adresse courriel').fill('finance@lesaines.test');
     await page.getByRole('checkbox', { name: /Finances/ }).check();
