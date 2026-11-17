@@ -6,6 +6,10 @@ import type { NextConfig } from 'next';
 const apiUrl = process.env.API_URL ?? 'http://localhost:3000/api';
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // app/global-not-found.tsx: 404 for URLs outside every route group.
+    globalNotFound: true,
+  },
   images: {
     localPatterns: [{ pathname: '/api/media/file/**' }],
   },
