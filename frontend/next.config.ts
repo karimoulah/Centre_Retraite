@@ -1,16 +1,16 @@
 import { withPayload } from '@payloadcms/next/withPayload';
 import type { NextConfig } from 'next';
 
-// NestJS serves its routes under /api, which Payload also needs.
-// The browser calls /backend/* and Next forwards it to the NestJS API.
-const apiUrl = process.env.API_URL ?? 'http://localhost:3000';
+// Payload owns /api. The browser calls /backend/* and Next forwards it to the NestJS API
+// (API_URL includes the API's global prefix, e.g. http://localhost:3000/api).
+const apiUrl = process.env.API_URL ?? 'http://localhost:3000/api';
 
 const nextConfig: NextConfig = {
   images: {
     localPatterns: [{ pathname: '/api/media/file/**' }],
   },
   async rewrites() {
-    return [{ source: '/backend/:path*', destination: `${apiUrl}/api/:path*` }];
+    return [{ source: '/backend/:path*', destination: `${apiUrl}/:path*` }];
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
