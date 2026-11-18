@@ -27,7 +27,7 @@ export const isBranchCurrent = (pathname: string, link: NavLink) =>
 
 const itemClass = (current: boolean) =>
   cn(
-    'flex min-h-11 items-center gap-2 rounded-full px-3.5 text-[0.9rem] whitespace-nowrap text-text-on-dark transition-colors hover:bg-white/10',
+    'flex min-h-11 items-center gap-1.5 rounded-full px-3 text-[0.875rem] whitespace-nowrap 2xl:px-3.5 2xl:text-[0.9rem] text-text-on-dark transition-colors hover:bg-white/10',
     current && 'bg-white/10',
   );
 
@@ -38,7 +38,7 @@ export function MainNav({ links }: { links: NavLink[] }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Navigation principale" className="hidden xl:block">
-      <ul className="flex items-center gap-0.5 rounded-full border border-white/15 bg-white/10 p-1.5 backdrop-blur">
+      <ul className="flex items-center gap-0 rounded-full border border-white/15 bg-white/10 p-1 backdrop-blur 2xl:gap-0.5 2xl:p-1.5">
         {links.map((link) => {
           const current = isBranchCurrent(pathname, link);
           if (!link.children?.length) {
@@ -57,7 +57,7 @@ export function MainNav({ links }: { links: NavLink[] }) {
                 <DropdownMenuTrigger className={itemClass(current)}>
                   {current && <Dot />}
                   {link.label}
-                  <ChevronDown aria-hidden className="size-4" />
+                  <ChevronDown aria-hidden className="size-3.5" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="min-w-56 rounded-2xl p-2">
                   <DropdownMenuItem asChild className="min-h-11 rounded-xl text-base font-medium">
