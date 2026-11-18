@@ -163,6 +163,10 @@ export interface Page {
             };
             image?: (number | null) | Media;
             medallion?: string | null;
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'hero';
@@ -176,6 +180,10 @@ export interface Page {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'stats';
@@ -191,6 +199,10 @@ export interface Page {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'logoStrip';
@@ -215,6 +227,10 @@ export interface Page {
                 }[]
               | null;
             showUpcomingActivities?: boolean | null;
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'aboutSplit';
@@ -227,6 +243,10 @@ export interface Page {
             title: string;
             text?: string | null;
             limit?: number | null;
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'upcomingActivities';
@@ -262,6 +282,10 @@ export interface Page {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'featureSplit';
@@ -301,6 +325,10 @@ export interface Page {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'servicesList';
@@ -325,6 +353,10 @@ export interface Page {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'featureRows';
@@ -345,6 +377,10 @@ export interface Page {
               url?: string | null;
             };
             limit?: number | null;
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'testimonialsVideoGrid';
@@ -353,6 +389,10 @@ export interface Page {
             title: string;
             text?: string | null;
             limit?: number | null;
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'testimonialCarousel';
@@ -362,6 +402,10 @@ export interface Page {
              * Les coordonnées viennent des réglages du site.
              */
             title?: string | null;
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'contactCards';
@@ -383,6 +427,10 @@ export interface Page {
               };
               [k: string]: unknown;
             };
+            /**
+             * Mot sans espace ni accent, ex. « vision ». Le lien /page#vision ouvre la page sur cette section.
+             */
+            anchor?: string | null;
             id?: string | null;
             blockName?: string | null;
             blockType: 'content';
@@ -555,6 +603,7 @@ export interface PagesSelect<T extends boolean = true> {
                   };
               image?: T;
               medallion?: T;
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -569,6 +618,7 @@ export interface PagesSelect<T extends boolean = true> {
                     label?: T;
                     id?: T;
                   };
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -585,6 +635,7 @@ export interface PagesSelect<T extends boolean = true> {
                     url?: T;
                     id?: T;
                   };
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -609,6 +660,7 @@ export interface PagesSelect<T extends boolean = true> {
                     id?: T;
                   };
               showUpcomingActivities?: T;
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -619,6 +671,7 @@ export interface PagesSelect<T extends boolean = true> {
               title?: T;
               text?: T;
               limit?: T;
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -650,6 +703,7 @@ export interface PagesSelect<T extends boolean = true> {
                         };
                     id?: T;
                   };
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -682,6 +736,7 @@ export interface PagesSelect<T extends boolean = true> {
                         };
                     id?: T;
                   };
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -706,6 +761,7 @@ export interface PagesSelect<T extends boolean = true> {
                         };
                     id?: T;
                   };
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -723,6 +779,7 @@ export interface PagesSelect<T extends boolean = true> {
                     url?: T;
                   };
               limit?: T;
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -732,6 +789,7 @@ export interface PagesSelect<T extends boolean = true> {
               title?: T;
               text?: T;
               limit?: T;
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -739,6 +797,7 @@ export interface PagesSelect<T extends boolean = true> {
           | T
           | {
               title?: T;
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -747,6 +806,7 @@ export interface PagesSelect<T extends boolean = true> {
           | {
               title?: T;
               body?: T;
+              anchor?: T;
               id?: T;
               blockName?: T;
             };
@@ -870,7 +930,7 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
- * Liens de l'en-tête, dans l'ordre d'affichage.
+ * Liens de l'en-tête, dans l'ordre d'affichage. Un lien avec un sous-menu s'ouvre en liste déroulante ; pour viser une section d'une page, ajoutez son ancre à l'adresse (ex. /qui-sommes-nous#vision).
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "mainMenu".
@@ -886,6 +946,18 @@ export interface MainMenu {
          * Adresse complète (https://…) ou chemin du site (/contact).
          */
         url?: string | null;
+        children?:
+          | {
+              label: string;
+              type?: ('page' | 'url') | null;
+              page?: (number | null) | Page;
+              /**
+               * Adresse complète (https://…) ou chemin du site (/contact).
+               */
+              url?: string | null;
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -952,6 +1024,15 @@ export interface MainMenuSelect<T extends boolean = true> {
         type?: T;
         page?: T;
         url?: T;
+        children?:
+          | T
+          | {
+              label?: T;
+              type?: T;
+              page?: T;
+              url?: T;
+              id?: T;
+            };
         id?: T;
       };
   updatedAt?: T;

@@ -35,7 +35,16 @@ export function RenderBlocks({ blocks }: { blocks: LayoutBlock[] | null | undefi
     <>
       {(blocks ?? []).map((block, index) => {
         const Component = components[block.blockType];
-        return Component ? <Component key={block.id ?? index} {...block} /> : null;
+        if (!Component) return null;
+        const anchor = 'anchor' in block && block.anchor ? block.anchor : null;
+        // The anchor wraps the section so /page#anchor scrolls to it, below the header.
+        return anchor ? (
+          <div key={block.id ?? index} id={anchor} className="scroll-mt-6">
+            <Component {...block} />
+          </div>
+        ) : (
+          <Component key={block.id ?? index} {...block} />
+        );
       })}
     </>
   );
