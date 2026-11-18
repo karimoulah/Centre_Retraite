@@ -1,3 +1,5 @@
+import { withAnchor } from '@/fields/anchor';
+
 import { AboutSplitBlock } from './aboutSplit/config';
 import { ContactCardsBlock } from './contactCards/config';
 import { ContentBlock } from './content/config';
@@ -11,7 +13,7 @@ import { TestimonialCarouselBlock } from './testimonialCarousel/config';
 import { TestimonialsVideoGridBlock } from './testimonialsVideoGrid/config';
 import { UpcomingActivitiesBlock } from './upcomingActivities/config';
 
-/** Every block an administrator can place on a page, in the order of the mockup. */
+/** Every block an administrator can place on a page, in the order of the mockup. Each can carry an anchor. */
 export const pageBlocks = [
   HeroBlock,
   StatsBlock,
@@ -25,4 +27,4 @@ export const pageBlocks = [
   TestimonialCarouselBlock,
   ContactCardsBlock,
   ContentBlock,
-];
+].map(withAnchor);

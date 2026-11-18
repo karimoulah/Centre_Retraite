@@ -35,10 +35,11 @@ test.describe('pages du CMS', () => {
   });
 
   test('une page de contenu a son titre et son SEO', async ({ page }) => {
-    await page.goto('/a-propos');
-    await expect(page.getByRole('heading', { level: 1, name: 'Le Centre' })).toBeVisible();
-    await expect(page).toHaveTitle(/Le Centre · Les Aînés/);
-    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /Mission/);
+    await page.goto('/qui-sommes-nous');
+    await expect(page.getByRole('heading', { level: 1, name: 'Qui sommes-nous ?' })).toBeVisible();
+    await expect(page).toHaveTitle(/Qui sommes-nous \? · Les Aînés/);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /Vision, mission et valeurs/);
+    for (const anchor of ['vision', 'mission', 'valeurs']) await expect(page.locator(`#${anchor}`)).toBeVisible();
     await expectNoA11yViolations(page);
   });
 
@@ -50,5 +51,15 @@ test.describe('pages du CMS', () => {
   test('une page non publiée renvoie 404', async ({ page }) => {
     const response = await page.goto('/brouillon-demo');
     expect(response?.status()).toBe(404);
+  });
+});
+
+test.describe('pages des exigences', () => {
+  test('témoignages et soutien sont accessibles', async ({ page }) => {
+    for (const [path, title] of [['/temoignages', 'Témoignages des aînés'], ['/soutenir', 'Soutenir le Centre']]) {
+      await page.goto(path);
+      await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
+      await expectNoA11yViolations(page);
+    }
   });
 });
