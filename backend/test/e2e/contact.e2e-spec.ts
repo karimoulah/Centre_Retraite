@@ -7,7 +7,7 @@ import { createTestApp, type TestApp } from '../setup/app';
 const message = (overrides: Record<string, unknown> = {}) => ({
   name: 'Gérard Paquette',
   email: `gerard.${Math.random().toString(36).slice(2, 8)}@exemple.ca`,
-  subject: 'Inscription aux ateliers',
+  subject: 'activities',
   message: 'Bonjour, est-ce qu’il reste de la place pour l’atelier de tablette ?',
   turnstileToken: 'dev-token',
   ...overrides,
@@ -28,18 +28,18 @@ describe('POST /contact (B2-05)', () => {
     const res = await send(body).expect(200);
     expect(res.body).toEqual({ received: true });
     const mail = await t.dataSource.getRepository(Notification).findOneOrFail({ where: { type: 'CONTACT_MESSAGE' }, order: { createdAt: 'DESC' } });
-    expect(mail).toMatchObject({ recipient: 'info@lesaines.test', data: { email: body.email, phone: '514 555-0123', subject: body.subject } });
+    expect(mail).toMatchObject({ recipient: 'info@lesaines.test', data: { email: body.email, phone: '514 555-0123', subject: 'Activités' } });
     expect(mail.data).not.toHaveProperty('turnstileToken');
   });
 
   it('validates the form in French and requires the anti-robot token', async () => {
-    const res = await send(message({ email: 'non', message: 'court', turnstileToken: '' })).expect(422);
-    expect(res.body.details.map((d: { field: string }) => d.field)).toEqual(expect.arrayContaining(['email', 'message', 'turnstileToken']));
+    const res = await send(message({ email: 'non', message: 'court', subject: 'meteo', turnstileToken: '' })).expect(422);
+    expect(res.body.details.map((d: { field: string }) => d.field)).toEqual(expect.arrayContaining(['email', 'message', 'subject', 'turnstileToken']));
   });
 
   it('limits one sender to 3 messages a minute', async () => {
     const body = message();
-    for (let i = 0; i < 3; i += 1) await send({ ...body, subject: `Question ${i}` }).expect(200);
+    for (let i = 0; i < 3; i += 1) await send({ ...body, message: `${body.message} (${i})` }).expect(200);
     const res = await send(body).expect(429);
     expect(res.body.code).toBe('TOO_MANY_REQUESTS');
   });

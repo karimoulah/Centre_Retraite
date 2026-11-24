@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, RequestMethod } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
 
 import { ENV, type Env } from '../../config/config.module';
@@ -19,6 +19,8 @@ export const REDACTED_PATHS = [
     LoggerModule.forRootAsync({
       inject: [ENV],
       useFactory: (env: Env) => ({
+        // Express 5 route syntax (the default "*" logs a conversion warning at start-up).
+        forRoutes: [{ path: '{*path}', method: RequestMethod.ALL }],
         pinoHttp: {
           level: env.LOG_LEVEL,
           redact: { paths: REDACTED_PATHS, censor: '[masqué]' },
