@@ -21,7 +21,21 @@ const DEFAULTS: Record<number, [string, string]> = {
 const CONSTRAINTS: Record<string, { code: string; field?: string; message: string }> = {
   users_email_key: { code: 'EMAIL_TAKEN', field: 'email', message: 'Un compte existe déjà avec ce courriel.' },
   members_email_key: { code: 'EMAIL_TAKEN', field: 'email', message: 'Un membre existe déjà avec ce courriel.' },
+  categories_name_key: { code: 'CATEGORY_EXISTS', field: 'name', message: 'Une catégorie porte déjà ce nom dans ce sens.' },
+  contributors_email_key: { code: 'EMAIL_TAKEN', field: 'email', message: 'Un contributeur existe déjà avec ce courriel.' },
+  contributors_member_id_key: { code: 'MEMBER_ALREADY_LINKED', field: 'memberId', message: 'Ce membre est déjà lié à un autre contributeur.' },
+  entries_reverses_id_key: { code: 'ALREADY_REVERSED', message: 'Cette écriture a déjà été contrepassée.' },
   consents_one_active: { code: 'CONSENT_ALREADY_ACTIVE', message: 'Ce consentement est déjà actif.' },
+};
+
+/** Messages of the rules raised by the database (see the migrations). */
+const DB_RULES: Record<string, string> = {
+  ALREADY_DECIDED: 'Cette demande a déjà été traitée.',
+  CATEGORY_DIRECTION_FIXED: 'Le sens d’une catégorie ne peut pas changer.',
+  CATEGORY_DIRECTION_MISMATCH: 'Cette catégorie ne correspond pas au sens de l’écriture.',
+  ENTRY_LOCKED: 'Cette écriture est validée : elle ne peut plus être modifiée. Corrigez-la par une contrepassation.',
+  ENTRY_NOT_DRAFT: 'Seul un brouillon peut être modifié ou supprimé.',
+  REVERSAL_MISMATCH: 'Une contrepassation reprend exactement l’opposé d’une écriture validée.',
 };
 
 const fromDefaults = (status: number, message?: string, details?: unknown): ErrorBody => {
@@ -46,13 +60,17 @@ export function toErrorResponse(exception: unknown): { status: number; body: Err
     return { status, body: fromDefaults(status) };
   }
   if (exception instanceof QueryFailedError) {
-    const driver = exception.driverError as { code?: string; constraint?: string };
+    const driver = exception.driverError as { code?: string; constraint?: string; hint?: string };
     if (driver.code === '23505') {
       const known = driver.constraint ? CONSTRAINTS[driver.constraint] : undefined;
       const details = known?.field ? [{ field: known.field, message: known.message }] : undefined;
       return { status: 409, body: known ? { code: known.code, message: known.message, details } : fromDefaults(409) };
     }
-    if (driver.code === 'P0409') return { status: 409, body: { code: 'ALREADY_DECIDED', message: 'Cette demande a déjà été traitée.' } };
+    // Business rules enforced by triggers: ERRCODE P0409 (conflict) or P0422 (invalid), HINT = error code.
+    if (driver.code === 'P0409' || driver.code === 'P0422') {
+      const code = driver.hint ?? 'ALREADY_DECIDED';
+      return { status: driver.code === 'P0409' ? 409 : 422, body: { code, message: DB_RULES[code] ?? fromDefaults(409).message } };
+    }
     if (driver.code === '23514') return { status: 422, body: fromDefaults(422) };
     if (driver.code === '23503') return { status: 409, body: fromDefaults(409, 'Cet élément est lié à d’autres données.') };
   }

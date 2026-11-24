@@ -7,3 +7,9 @@
     line-height: 1.5;
   }
 }
+
+/* Toasts: darker texts than Sonner's rich colors, for AA contrast (4.5:1) on their tinted backgrounds. */
+html [data-sonner-toast][data-rich-colors='true'][data-type='success'] { color: #0b5a2a; }
+html [data-sonner-toast][data-rich-colors='true'][data-type='error'] { color: #9b1c1c; }
+html [data-sonner-toast][data-rich-colors='true'][data-type='info'] { color: #1e3a8a; }
+html [data-sonner-toast][data-rich-colors='true'][data-type='warning'] { color: #6b4100; }

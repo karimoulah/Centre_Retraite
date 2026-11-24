@@ -19,9 +19,15 @@ describe('loadEnv', () => {
   });
 
   it('secures cookies and hides Swagger in production', () => {
-    const env = loadEnv({ ...valid, NODE_ENV: 'production', TURNSTILE_SECRET_KEY: 'x' });
+    const r2 = { CHATBOT_SYNC_SECRET: 's'.repeat(40), PAYMENTS_DRIVER: 'stripe', STRIPE_SECRET_KEY: 'sk_live_x', STRIPE_WEBHOOK_SECRET: 'whsec_real', STORAGE_DRIVER: 'r2', R2_ACCOUNT_ID: 'a', R2_ACCESS_KEY_ID: 'b', R2_SECRET_ACCESS_KEY: 'c', R2_BUCKET: 'd' };
+    const env = loadEnv({ ...valid, ...r2, NODE_ENV: 'production', TURNSTILE_SECRET_KEY: 'x' });
     expect(env.COOKIE_SECURE).toBe(true);
     expect(env.SWAGGER_ENABLED).toBe(false);
+  });
+
+  it('requires R2 in production, with its credentials', () => {
+    expect(() => loadEnv({ ...valid, NODE_ENV: 'production', TURNSTILE_SECRET_KEY: 'x' })).toThrow(/STORAGE_DRIVER/);
+    expect(() => loadEnv({ ...valid, STORAGE_DRIVER: 'r2' })).toThrow(/R2_BUCKET/);
   });
 
   it('requires a Brevo key when Brevo sends the e-mails', () => {

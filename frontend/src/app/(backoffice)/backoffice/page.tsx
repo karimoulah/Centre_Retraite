@@ -14,7 +14,11 @@ const descriptions: Record<string, string> = {
   '/backoffice/members': 'Rechercher un membre, mettre à jour sa fiche.',
   '/backoffice/users': "Comptes de l'équipe, rôles et invitations.",
   '/backoffice/audit': 'Qui a fait quoi, et quand.',
-  '/backoffice/settings': "Approbation automatique et autres réglages.",
+  '/backoffice/settings': "Approbation automatique, seuil d'approbation des dépenses.",
+  '/backoffice/finance/entries': 'Recettes et dépenses, totaux, validation et contrepassation.',
+  '/backoffice/finance/expenses': 'Approuver ou refuser les dépenses au-delà du seuil.',
+  '/backoffice/finance/categories': 'Catégories de recettes et de dépenses.',
+  '/backoffice/finance/contributors': 'Donateurs et organismes, avec leurs dons.',
   '/admin': 'Pages, menus et coordonnées du site public.',
 };
 
@@ -31,7 +35,7 @@ export default async function BackofficeHomePage() {
       {shortcuts.length === 0 ? (
         <EmptyState
           title="Vos écrans arrivent bientôt"
-          description="Les modules Finances et Témoignages seront disponibles aux prochains sprints. Vous serez redirigé ici automatiquement."
+          description="Le module Témoignages sera disponible au prochain sprint. Vous serez redirigé ici automatiquement."
         />
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

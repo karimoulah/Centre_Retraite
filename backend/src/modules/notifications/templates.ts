@@ -5,10 +5,13 @@ export type NotificationData = {
   USER_INVITATION: { firstName: string; url: string };
   PASSWORD_RESET: { firstName: string; url: string };
   CONTACT_MESSAGE: { name: string; email: string; phone?: string | null; subject: string; message: string };
+  DONATION_CONFIRMED: { name: string; amountCents: number; reference: string; date: string };
 };
 export type NotificationType = keyof NotificationData;
 
 type Rendered = { subject: string; text: string; replyTo?: string };
+
+const money = (cents: number) => (cents / 100).toLocaleString('fr-CA', { style: 'currency', currency: 'CAD' });
 
 const signature = "\n\nL'équipe du Centre d'accompagnement des retraités";
 
@@ -35,6 +38,10 @@ export const templates: { [K in NotificationType]: (data: NotificationData[K]) =
     subject: `[Contact] ${d.subject}`,
     text: `Message reçu par le formulaire de contact.\n\nNom : ${d.name}\nCourriel : ${d.email}\nTéléphone : ${d.phone || '—'}\n\n${d.message}`,
     replyTo: d.email,
+  }),
+  DONATION_CONFIRMED: (d) => ({
+    subject: 'Merci pour votre don au Centre',
+    text: `Bonjour ${d.name},\n\nNous avons bien reçu votre don de ${money(d.amountCents)} le ${d.date}. Merci de soutenir le Centre et ses membres.\n\nNuméro de référence : ${d.reference}\nConservez ce courriel : il confirme votre paiement. Le reçu fiscal, s’il y a lieu, vous sera envoyé séparément.${signature}`,
   }),
 };
 

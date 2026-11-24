@@ -7,6 +7,8 @@ export const accounts = {
   finance: 'finance@lesaines.test',
   testimonials: 'temoignages@lesaines.test',
   member: 'membre@lesaines.test',
+  /** ADMIN + FINANCE: a second finance person, for the four-eyes rule. */
+  direction: 'direction@lesaines.test',
 } as const;
 
 /** Logs in through the real form and waits for the redirect. */
@@ -17,7 +19,8 @@ export async function loginAs(page: Page, account: keyof typeof accounts, next?:
   await page.getByRole('button', { name: 'Se connecter' }).click();
   await expect(page).not.toHaveURL(/\/login/);
   // The Payload console (/admin) has its own layout, without the hydration marker.
-  if (!next?.startsWith('/admin')) await page.locator('html[data-hydrated="true"]').waitFor({ timeout: 30_000 });
+  if (!next?.startsWith('/admin'))
+    await page.locator('html[data-hydrated="true"]').waitFor({ timeout: 30_000 });
 }
 
 /** Opens the back-office sidebar on small screens (retries until hydration is done). */
@@ -25,7 +28,8 @@ export async function openSidebarIfMobile(page: Page, isMobile: boolean) {
   if (!isMobile) return;
   const nav = page.getByRole('navigation', { name: 'Back-office' });
   await expect(async () => {
-    if (!(await nav.isVisible())) await page.getByRole('button', { name: 'Afficher ou masquer le menu' }).first().click();
+    if (!(await nav.isVisible()))
+      await page.getByRole('button', { name: 'Afficher ou masquer le menu' }).first().click();
     await expect(nav).toBeVisible({ timeout: 1000 });
   }).toPass({ timeout: 15_000 });
 }

@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload';
 import { adminOnly } from '@/lib/cms/access';
 
 import { pageBlocks } from '@/blocks';
+import { removePageFromChatbot, syncPageToChatbot } from '@/lib/cms/chatbot-sync';
 import { revalidateSite } from '@/lib/cms/revalidate';
 
 export const Pages: CollectionConfig = {
@@ -18,7 +19,8 @@ export const Pages: CollectionConfig = {
   versions: { drafts: true, maxPerDoc: 20 },
   // Visitors only see published pages; signed-in editors also see drafts.
   access: { create: adminOnly, update: adminOnly, delete: adminOnly, read: ({ req }) => (req.user?.roles?.includes('ADMIN') ? true : { _status: { equals: 'published' } }) },
-  hooks: { afterChange: [revalidateSite], afterDelete: [revalidateSite] },
+  // The assistant's index follows the published pages (B11-01).
+  hooks: { afterChange: [revalidateSite, syncPageToChatbot], afterDelete: [revalidateSite, removePageFromChatbot] },
   fields: [
     { name: 'title', label: 'Titre', type: 'text', required: true },
     {

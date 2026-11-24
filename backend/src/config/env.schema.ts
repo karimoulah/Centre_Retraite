@@ -33,6 +33,31 @@ export const envSchema = z
     BREVO_SANDBOX: bool(true),
 
     TURNSTILE_SECRET_KEY: z.string().optional(),
+
+    /** Online donations: "stripe" (test or live keys) or "fake" (local checkout page, development and tests). */
+    PAYMENTS_DRIVER: z.enum(['stripe', 'fake']).default('fake'),
+    STRIPE_SECRET_KEY: z.string().optional(),
+    /** Signing secret of the webhook endpoint (whsec_…); the fake driver signs its events with it too. */
+    STRIPE_WEBHOOK_SECRET: z.string().default('whsec_local_development_only'),
+    /** Public base of this API (links of the fake checkout page). */
+    API_PUBLIC_URL: z.url().default('http://localhost:3000/api/v1'),
+
+    /** Assistant (EP9): "voyage" embeddings (docs/ia/choix-llm-embeddings.md) or "fake" (local, deterministic: development and tests). */
+    EMBEDDINGS_DRIVER: z.enum(['voyage', 'fake']).default('fake'),
+    VOYAGE_API_KEY: z.string().optional(),
+    /** Shared with Payload: signs the page-change notifications sent to POST /internal/chatbot/sync (HMAC-SHA256). */
+    CHATBOT_SYNC_SECRET: z.string().min(32).default('local-development-chatbot-sync-secret'),
+
+    /** Receipts and media: "local" (files on disk, development and tests) or "r2" (Cloudflare R2, private bucket). */
+    STORAGE_DRIVER: z.enum(['local', 'r2']).default('local'),
+    STORAGE_LOCAL_DIR: z.string().default('.storage'),
+    /** Base of the signed URLs of the local driver (the API itself). */
+    STORAGE_PUBLIC_URL: z.url().default('http://localhost:3000/api/v1'),
+    STORAGE_SIGNING_SECRET: z.string().min(32).optional(),
+    R2_ACCOUNT_ID: z.string().optional(),
+    R2_ACCESS_KEY_ID: z.string().optional(),
+    R2_SECRET_ACCESS_KEY: z.string().optional(),
+    R2_BUCKET: z.string().optional(),
     /** Requests per minute and per IP address on every route (stricter limits on sign-in and public forms). */
     THROTTLE_LIMIT: z.coerce.number().int().positive().default(300),
     THROTTLE_ENABLED: bool(true),
@@ -49,6 +74,26 @@ export const envSchema = z
   .superRefine((env, ctx) => {
     if (env.MAIL_TRANSPORT === 'brevo' && !env.BREVO_API_KEY) {
       ctx.addIssue({ code: 'custom', path: ['BREVO_API_KEY'], message: 'required when MAIL_TRANSPORT=brevo' });
+    }
+    if (env.PAYMENTS_DRIVER === 'stripe' && !env.STRIPE_SECRET_KEY) {
+      ctx.addIssue({ code: 'custom', path: ['STRIPE_SECRET_KEY'], message: 'required when PAYMENTS_DRIVER=stripe' });
+    }
+    if (env.NODE_ENV === 'production' && (env.PAYMENTS_DRIVER !== 'stripe' || env.STRIPE_WEBHOOK_SECRET === 'whsec_local_development_only')) {
+      ctx.addIssue({ code: 'custom', path: ['PAYMENTS_DRIVER'], message: 'stripe with a real webhook secret is required in production' });
+    }
+    if (env.EMBEDDINGS_DRIVER === 'voyage' && !env.VOYAGE_API_KEY) {
+      ctx.addIssue({ code: 'custom', path: ['VOYAGE_API_KEY'], message: 'required when EMBEDDINGS_DRIVER=voyage' });
+    }
+    if (env.NODE_ENV === 'production' && env.CHATBOT_SYNC_SECRET === 'local-development-chatbot-sync-secret') {
+      ctx.addIssue({ code: 'custom', path: ['CHATBOT_SYNC_SECRET'], message: 'set a real secret in production' });
+    }
+    if (env.STORAGE_DRIVER === 'r2') {
+      for (const key of ['R2_ACCOUNT_ID', 'R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY', 'R2_BUCKET'] as const) {
+        if (!env[key]) ctx.addIssue({ code: 'custom', path: [key], message: 'required when STORAGE_DRIVER=r2' });
+      }
+    }
+    if (env.NODE_ENV === 'production' && env.STORAGE_DRIVER === 'local') {
+      ctx.addIssue({ code: 'custom', path: ['STORAGE_DRIVER'], message: 'must be r2 in production' });
     }
     if (env.NODE_ENV === 'production' && !env.TURNSTILE_SECRET_KEY) {
       ctx.addIssue({ code: 'custom', path: ['TURNSTILE_SECRET_KEY'], message: 'required in production' });

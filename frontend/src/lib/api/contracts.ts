@@ -166,3 +166,153 @@ export type UpdateMemberRequest = Partial<Pick<Member, 'firstName' | 'lastName' 
 export type UpdateMyProfileRequest = Pick<Member, 'phone' | 'address'>;
 /** PUT /me/consents */
 export type UpdateConsentsRequest = Partial<Record<MemberConsentKey, boolean>>;
+
+/* ------------------------------------------------------------------ Finances (sprint 2) */
+
+export const ENTRY_DIRECTIONS = ['INCOME', 'EXPENSE'] as const;
+export type EntryDirection = (typeof ENTRY_DIRECTIONS)[number];
+export const DIRECTION_LABELS: Record<EntryDirection, string> = { INCOME: 'Recette', EXPENSE: 'Dépense' };
+
+/** GET /categories (plain list, no pagination). `system`: used by online donations, stays active. */
+export type Category = {
+  id: string;
+  name: string;
+  direction: EntryDirection;
+  receiptEligible: boolean;
+  active: boolean;
+  system: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+export type CreateCategoryRequest = Pick<Category, 'name' | 'direction' | 'receiptEligible'>;
+export type UpdateCategoryRequest = Partial<Pick<Category, 'name' | 'receiptEligible' | 'active'>>;
+
+export const CONTRIBUTOR_KINDS = ['INDIVIDUAL', 'ORGANIZATION'] as const;
+export type ContributorKind = (typeof CONTRIBUTOR_KINDS)[number];
+export const CONTRIBUTOR_KIND_LABELS: Record<ContributorKind, string> = { INDIVIDUAL: 'Personne', ORGANIZATION: 'Organisme' };
+
+/** GET /contributors, GET /contributors/:id */
+export type Contributor = {
+  id: string;
+  kind: ContributorKind;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  notes: string | null;
+  member: { id: string; memberNumber: string; name: string } | null;
+  createdAt: string;
+};
+export type ContributorRequest = {
+  kind: ContributorKind;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  notes?: string | null;
+  memberId?: string | null;
+};
+
+export const ENTRY_STATUSES = ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'VALIDATED'] as const;
+export type EntryStatus = (typeof ENTRY_STATUSES)[number];
+export const ENTRY_STATUS_LABELS: Record<EntryStatus, string> = {
+  DRAFT: 'Brouillon',
+  SUBMITTED: 'À approuver',
+  APPROVED: 'Approuvée',
+  REJECTED: 'Refusée',
+  VALIDATED: 'Validée',
+};
+export const PAYMENT_METHODS = ['CASH', 'CHEQUE', 'CARD', 'TRANSFER', 'ONLINE', 'OTHER'] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  CASH: 'Argent comptant',
+  CHEQUE: 'Chèque',
+  CARD: 'Carte',
+  TRANSFER: 'Virement',
+  ONLINE: 'En ligne',
+  OTHER: 'Autre',
+};
+/** Methods a person can enter by hand; ONLINE is reserved to online donations. */
+export const MANUAL_PAYMENT_METHODS = ['CASH', 'CHEQUE', 'CARD', 'TRANSFER', 'OTHER'] as const;
+
+type Person = { id: string; name: string } | null;
+type EntryLink = { id: string; reference: string } | null;
+
+/** GET /entries items. Amounts in cents; a reversal has the opposite (negative) amount. */
+export type Entry = {
+  id: string;
+  reference: string;
+  direction: EntryDirection;
+  status: EntryStatus;
+  amountCents: number;
+  entryDate: string;
+  category: { id: string; name: string };
+  contributor: { id: string; name: string } | null;
+  supplier: string | null;
+  paymentMethod: PaymentMethod;
+  project: string | null;
+  description: string;
+  source: 'MANUAL' | 'ONLINE';
+  attachment: { name: string; type: string; size: number; url?: string | null } | null;
+  reverses: EntryLink;
+  reversedBy: EntryLink;
+  reversalReason: string | null;
+  createdBy: Person;
+  createdAt: string;
+  decidedBy: Person;
+  decidedAt: string | null;
+  rejectionReason: string | null;
+  validatedBy: Person;
+  validatedAt: string | null;
+};
+
+/** Totals of the whole filtered selection, not only the page. */
+export type EntryTotals = { count: number; incomeCents: number; expenseCents: number; balanceCents: number };
+export type EntriesPage = Paginated<Entry> & { totals: EntryTotals };
+
+/** GET /entries/:id */
+export type EntryDetail = Entry & {
+  history: { at: string; action: string; actor: Person; before?: Record<string, unknown> | null; after?: Record<string, unknown> | null }[];
+};
+
+export type EntriesQuery = ListQuery & {
+  from?: string;
+  to?: string;
+  categoryId?: string;
+  contributorId?: string;
+  direction?: EntryDirection;
+  status?: EntryStatus;
+  paymentMethod?: PaymentMethod;
+  project?: string;
+};
+
+/** POST /entries (income) and POST /expenses. Amount in cents. */
+export type EntryRequest = {
+  amountCents: number;
+  entryDate: string;
+  categoryId: string;
+  paymentMethod: (typeof MANUAL_PAYMENT_METHODS)[number];
+  description: string;
+  project?: string | null;
+  contributorId?: string | null;
+  supplier?: string;
+};
+
+/** POST /entries/:id/attachment → the browser PUTs the file to uploadUrl, then confirms. */
+export type AttachmentUpload = { key: string; uploadUrl: string; method: 'PUT'; headers: Record<string, string>; expiresAt: string };
+export const ATTACHMENT_TYPES = ['application/pdf', 'image/jpeg', 'image/png'] as const;
+export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+
+/** GET /settings/finance (finance and admin) — expenses above the threshold need a second person. */
+export type FinanceSettings = { expenseApprovalThresholdCents: number; updatedAt: string | null; updatedBy: string | null };
+
+/* ------------------------------------------------------------------ Dons en ligne (sprint 2) */
+
+/** POST /donations/checkout → the browser goes to the provider's payment page (Stripe Checkout). */
+export type DonationCheckoutRequest = { amountCents: number; donorName: string; donorEmail: string; turnstileToken: string };
+export type DonationCheckout = { url: string };
+export const DONATION_PRESETS_CENTS = [2_500, 5_000, 10_000, 25_000] as const;
+export const MIN_DONATION_CENTS = 500;
+
+/** GET /donations/sessions/:sessionId — status shown on the thank-you page. */
+export type DonationStatus = { status: 'PENDING' | 'CONFIRMED' | 'FAILED' | 'EXPIRED' | 'REFUNDED'; amountCents: number };

@@ -1,3 +1,4 @@
+export { CheckboxField } from './CheckboxField';
 export { FormAlert } from './FormAlert';
 export { FormErrorAlert } from './FormErrorAlert';
 export { FormField } from './FormField';

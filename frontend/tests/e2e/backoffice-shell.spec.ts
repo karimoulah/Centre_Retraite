@@ -37,8 +37,16 @@ test.describe('accueil du back-office', () => {
     await expectNoA11yViolations(page);
   });
 
-  test('les finances voient un message tant que leur module manque', async ({ page }) => {
+  test('les finances voient les raccourcis de leur module', async ({ page }) => {
     await loginAs(page, 'finance');
+    const main = page.locator('#contenu');
+    await expect(main.getByRole('link', { name: /Écritures/ })).toBeVisible();
+    await expect(main.getByRole('link', { name: /Dépenses à approuver/ })).toBeVisible();
+    await expect(main.getByRole('link', { name: "Demandes d'adhésion" })).toHaveCount(0);
+  });
+
+  test('les témoignages voient un message tant que leur module manque', async ({ page }) => {
+    await loginAs(page, 'testimonials');
     await expect(page.getByText('Vos écrans arrivent bientôt')).toBeVisible();
   });
 });

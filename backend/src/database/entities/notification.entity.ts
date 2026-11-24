@@ -15,4 +15,5 @@ export class Notification {
   @Column({ name: 'last_error', type: 'text', nullable: true }) lastError!: string | null;
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' }) createdAt!: Date;
   @Column({ name: 'sent_at', type: 'timestamptz', nullable: true }) sentAt!: Date | null;
+  @Column({ name: 'failed_at', type: 'timestamptz', nullable: true }) failedAt!: Date | null;
 }

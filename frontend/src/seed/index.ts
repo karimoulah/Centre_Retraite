@@ -189,7 +189,7 @@ export async function seed(payload: Payload) {
             'Vos dons financent les activités, les ateliers et l’accompagnement offerts aux aînés. Un reçu fiscal est remis pour chaque don admissible.',
           ),
           paragraph(
-            'Le don en ligne sera bientôt disponible sur cette page. D’ici là, vous pouvez donner par téléphone ou en personne au Centre.',
+            'Donnez en ligne, par carte, en quelques minutes à l’adresse /donate : un courriel confirme votre don. Vous pouvez aussi donner par téléphone ou en personne au Centre.',
           ),
         ),
       },
@@ -425,6 +425,7 @@ export async function seed(payload: Payload) {
           links: [
             { label: 'Devenir membre', type: 'url', url: '/membership' },
             { label: 'Soutenir / Faire un don', type: 'page', page: supportPage.id },
+            { label: 'Faire un don en ligne', type: 'url', url: '/donate' },
           ],
         },
         {

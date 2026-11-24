@@ -16,5 +16,23 @@ export type ConsentChannel = (typeof CONSENT_CHANNELS)[number];
 export const TOKEN_PURPOSES = ['RESET', 'INVITATION'] as const;
 export type TokenPurpose = (typeof TOKEN_PURPOSES)[number];
 
-export const NOTIFICATION_STATUSES = ['QUEUED', 'SENT', 'FAILED'] as const;
+/** QUEUED → SENT; FAILED = an attempt failed and another is planned; ABANDONED = every attempt failed. */
+export const NOTIFICATION_STATUSES = ['QUEUED', 'SENT', 'FAILED', 'ABANDONED'] as const;
 export type NotificationStatus = (typeof NOTIFICATION_STATUSES)[number];
+
+export const ENTRY_DIRECTIONS = ['INCOME', 'EXPENSE'] as const;
+export type EntryDirection = (typeof ENTRY_DIRECTIONS)[number];
+
+export const CONTRIBUTOR_KINDS = ['INDIVIDUAL', 'ORGANIZATION'] as const;
+export type ContributorKind = (typeof CONTRIBUTOR_KINDS)[number];
+
+/** DRAFT → VALIDATED; an expense above the threshold goes SUBMITTED → APPROVED (or REJECTED) first. */
+export const ENTRY_STATUSES = ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'VALIDATED'] as const;
+export type EntryStatus = (typeof ENTRY_STATUSES)[number];
+export const PAYMENT_METHODS = ['CASH', 'CHEQUE', 'CARD', 'TRANSFER', 'ONLINE', 'OTHER'] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+export const ENTRY_SOURCES = ['MANUAL', 'ONLINE'] as const;
+export type EntrySource = (typeof ENTRY_SOURCES)[number];
+
+export const PAYMENT_STATUSES = ['PENDING', 'CONFIRMED', 'FAILED', 'EXPIRED', 'REFUNDED'] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];

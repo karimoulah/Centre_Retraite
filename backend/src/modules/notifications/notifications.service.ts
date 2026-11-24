@@ -4,7 +4,7 @@ import type { Queue } from 'bullmq';
 
 import { RequestContext } from '../../common/transaction/request-context';
 import { Tx } from '../../common/transaction/transaction.service';
-import { MAX_ATTEMPTS, NOTIFICATIONS_QUEUE, type NotificationJob } from './notifications.constants';
+import { MAX_ATTEMPTS, NOTIFICATIONS_QUEUE, type NotificationJob, RETRY_BACKOFF } from './notifications.constants';
 import type { NotificationData, NotificationType } from './templates';
 
 @Injectable()
@@ -35,7 +35,7 @@ export class NotificationsService {
       this.queue.add(type, { notificationId: id }, {
         jobId: id,
         attempts: MAX_ATTEMPTS,
-        backoff: { type: 'exponential', delay: 30_000 },
+        backoff: RETRY_BACKOFF,
         removeOnComplete: 1000,
         removeOnFail: false,
       }),

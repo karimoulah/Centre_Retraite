@@ -1,9 +1,13 @@
 import {
+  BookOpenCheck,
   ClipboardList,
+  HandCoins,
+  Tags,
   FileText,
   History,
   LayoutDashboard,
   Settings,
+  ShieldCheck,
   UserCog,
   Users,
   type LucideIcon,
@@ -37,6 +41,15 @@ export const backofficeNav: NavGroup[] = [
     ],
   },
   {
+    label: 'Finances',
+    items: [
+      { href: '/backoffice/finance/entries', label: 'Écritures', icon: BookOpenCheck, roles: ['FINANCE'] },
+      { href: '/backoffice/finance/expenses', label: 'Dépenses à approuver', icon: ShieldCheck, roles: ['FINANCE'] },
+      { href: '/backoffice/finance/categories', label: 'Catégories', icon: Tags, roles: ['FINANCE'] },
+      { href: '/backoffice/finance/contributors', label: 'Contributeurs', icon: HandCoins, roles: ['FINANCE'] },
+    ],
+  },
+  {
     label: 'Administration',
     items: [
       { href: '/backoffice/users', label: 'Utilisateurs', icon: UserCog, roles: ['ADMIN'] },
@@ -56,6 +69,11 @@ export const segmentLabels: Record<string, string> = {
   audit: "Journal d'audit",
   settings: 'Paramètres',
   new: 'Nouveau',
+  finance: 'Finances',
+  categories: 'Catégories',
+  contributors: 'Contributeurs',
+  entries: 'Écritures',
+  expenses: 'Dépenses',
 };
 
 export function navFor(roles: Role[]): NavGroup[] {
