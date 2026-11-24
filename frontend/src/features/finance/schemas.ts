@@ -84,3 +84,15 @@ export const toEntryRequest = (values: EntryValues, direction: EntryDirection): 
 
 export const centsToInput = (cents: number) => (cents / 100).toFixed(2).replace('.', ',');
 export { today as todayInToronto };
+
+export const thresholdSchema = z.object({
+  threshold: z
+    .string()
+    .trim()
+    .min(1, 'Entrez le seuil.')
+    .refine(
+      (v) => /^\d+([.,]\d{1,2})?$/.test(v.replace(/\s/g, '')) && (dollarsToCents(v) ?? -1) >= 0,
+      'Entrez un montant en dollars, par exemple 500.',
+    ),
+});
+export type ThresholdValues = z.infer<typeof thresholdSchema>;

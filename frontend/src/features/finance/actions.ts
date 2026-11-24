@@ -12,8 +12,10 @@ import type {
   Entry,
   EntryDetail,
   EntryDirection,
+  FinanceSettings,
   UpdateCategoryRequest,
 } from '@/lib/api/contracts';
+import { dollarsToCents } from '@/lib/format';
 import { requireRole } from '@/lib/session';
 
 import {
@@ -21,6 +23,7 @@ import {
   contributorSchema,
   entrySchema,
   expenseSchema,
+  thresholdSchema,
   toEntryRequest,
   type CategoryValues,
   type ContributorValues,
@@ -239,4 +242,49 @@ export async function deleteDraftAction(id: string): Promise<ActionResult> {
   if (!result.ok) return result;
   revalidatePath(`${FINANCE}/entries`);
   redirect(`${FINANCE}/entries`);
+}
+
+/** Expense approval (F5-09): by someone other than the author (the API refuses otherwise). */
+export async function approveExpenseAction(id: string): Promise<ActionResult<Entry>> {
+  await requireRole('FINANCE');
+  const result = await runAction(
+    () => api<Entry>(`/expenses/${id}/approve`, { method: 'POST' }),
+    'Dépense approuvée : elle peut maintenant être validée.',
+  );
+  if (result.ok) revalidatePath(FINANCE, 'layout');
+  return result;
+}
+
+export async function rejectExpenseAction(
+  id: string,
+  reason?: string,
+): Promise<ActionResult<Entry>> {
+  await requireRole('FINANCE');
+  if (!reason || reason.trim().length < 5)
+    return { ok: false, message: 'Le motif doit contenir au moins 5 caractères.' };
+  const result = await runAction(
+    () => api<Entry>(`/expenses/${id}/reject`, { method: 'POST', body: { reason: reason.trim() } }),
+    'Dépense refusée.',
+  );
+  if (result.ok) revalidatePath(FINANCE, 'layout');
+  return result;
+}
+
+/** Approval threshold (F5-10), administrators only. */
+export async function updateFinanceSettingsAction(values: {
+  threshold: string;
+}): Promise<ActionResult<FinanceSettings>> {
+  await requireRole('ADMIN');
+  const parsed = thresholdSchema.safeParse(values);
+  if (!parsed.success) return invalid;
+  const result = await runAction(
+    () =>
+      api<FinanceSettings>('/settings/finance', {
+        method: 'PUT',
+        body: { expenseApprovalThresholdCents: dollarsToCents(parsed.data.threshold) },
+      }),
+    'Seuil d’approbation enregistré.',
+  );
+  if (result.ok) revalidatePath('/backoffice/settings');
+  return result;
 }

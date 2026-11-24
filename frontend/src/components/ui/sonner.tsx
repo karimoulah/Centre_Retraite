@@ -29,11 +29,6 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-text": "var(--popover-foreground)",
           "--normal-border": "var(--border)",
           "--border-radius": "var(--radius)",
-          // Darker texts than Sonner's rich colors, for AA contrast (4.5:1) on their tinted backgrounds.
-          "--success-text": "#0b5a2a",
-          "--error-text": "#9b1c1c",
-          "--info-text": "#1e3a8a",
-          "--warning-text": "#6b4100",
         } as React.CSSProperties
       }
       {...props}

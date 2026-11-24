@@ -7,6 +7,7 @@ import {
   History,
   LayoutDashboard,
   Settings,
+  ShieldCheck,
   UserCog,
   Users,
   type LucideIcon,
@@ -43,6 +44,7 @@ export const backofficeNav: NavGroup[] = [
     label: 'Finances',
     items: [
       { href: '/backoffice/finance/entries', label: 'Écritures', icon: BookOpenCheck, roles: ['FINANCE'] },
+      { href: '/backoffice/finance/expenses', label: 'Dépenses à approuver', icon: ShieldCheck, roles: ['FINANCE'] },
       { href: '/backoffice/finance/categories', label: 'Catégories', icon: Tags, roles: ['FINANCE'] },
       { href: '/backoffice/finance/contributors', label: 'Contributeurs', icon: HandCoins, roles: ['FINANCE'] },
     ],

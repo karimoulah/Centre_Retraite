@@ -377,3 +377,78 @@ export const entryDecisionRoutes: MockRoute[] = [
     },
   },
 ];
+
+export const expenseApprovalRoutes: MockRoute[] = [
+  ...(['approve', 'reject'] as const).map((decision): MockRoute => ({
+    method: 'POST',
+    path: `/expenses/:id/${decision}`,
+    handler: (request) => {
+      const me = guard(request, 'FINANCE');
+      if (isResponse(me)) return me;
+      const e = findEntry(request.params.id);
+      if (!e) return fail(404, 'NOT_FOUND', 'Écriture introuvable.');
+      if (e.direction !== 'EXPENSE' || e.status !== 'SUBMITTED')
+        return fail(
+          409,
+          'NOT_AWAITING_APPROVAL',
+          'Cette dépense n’est pas en attente d’approbation.',
+        );
+      if (e.createdBy?.id === me.id)
+        return fail(
+          403,
+          'SELF_APPROVAL',
+          'Une autre personne doit approuver une dépense que vous avez saisie.',
+        );
+      const reason = (request.body as { reason?: string } | undefined)?.reason?.trim();
+      if (decision === 'reject' && (!reason || reason.length < 5))
+        return fail(422, 'VALIDATION_FAILED', 'Le motif est obligatoire.', [
+          { field: 'reason', message: 'Le motif est obligatoire (5 caractères minimum).' },
+        ]);
+      Object.assign(e, {
+        status: decision === 'approve' ? 'APPROVED' : 'REJECTED',
+        decidedBy: actorOf(me),
+        decidedAt: new Date().toISOString(),
+        rejectionReason: decision === 'reject' ? reason : null,
+      });
+      record(
+        e,
+        actorOf(me),
+        decision === 'approve' ? 'EXPENSE_APPROVED' : 'EXPENSE_REJECTED',
+        { status: 'SUBMITTED' },
+        { status: e.status, ...(reason ? { reason } : {}) },
+      );
+      return ok(e);
+    },
+  })),
+  {
+    method: 'PUT',
+    path: '/settings/finance',
+    handler: (request) => {
+      const me = guard(request, 'ADMIN');
+      if (isResponse(me)) return me;
+      const value = (request.body as { expenseApprovalThresholdCents?: number })
+        .expenseApprovalThresholdCents;
+      if (!Number.isInteger(value) || value! < 0)
+        return fail(422, 'VALIDATION_FAILED', 'Seuil invalide.', [
+          { field: 'expenseApprovalThresholdCents', message: 'Entrez un montant positif.' },
+        ]);
+      const settings = financeSettings();
+      const before = { expenseApprovalThresholdCents: settings.expenseApprovalThresholdCents };
+      Object.assign(settings, {
+        expenseApprovalThresholdCents: value,
+        updatedAt: new Date().toISOString(),
+        updatedBy: actorOf(me).name,
+      });
+      recordAudit({
+        actor: actorOf(me),
+        action: 'SETTINGS_UPDATED',
+        entityType: 'Settings',
+        entityId: 'finance',
+        entityLabel: 'Finances',
+        before,
+        after: { expenseApprovalThresholdCents: value },
+      });
+      return ok(settings);
+    },
+  },
+];
