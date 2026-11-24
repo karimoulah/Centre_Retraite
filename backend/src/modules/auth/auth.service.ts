@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { verify } from '@node-rs/argon2';
 import type { Response } from 'express';
-import { DataSource } from 'typeorm';
+import { DataSource, IsNull } from 'typeorm';
 
 import { AppError } from '../../common/app-error';
 import { Tx } from '../../common/transaction/transaction.service';
-import { User } from '../../database/entities';
+import { Session, User } from '../../database/entities';
 import { AuditService } from '../audit/audit.service';
 import { fullName, toSessionUser, type SessionUser } from '../users/user.mapper';
 import { TokenService } from './token.service';
@@ -50,6 +50,35 @@ export class AuthService {
     await this.tokens.startSession(user, res);
     await this.audit.record({ action: 'LOGIN_SUCCEEDED', entityType: 'User', entityId: user.id, entityLabel: fullName(user) });
     return { user: toSessionUser(user) };
+  }
+
+  /** Revokes the refresh session (if any) and clears both cookies; always succeeds. */
+  async logout(refreshToken: string | undefined, res: Response): Promise<void> {
+    const payload = refreshToken ? await this.tokens.verifyRefresh(refreshToken).catch(() => null) : null;
+    if (payload?.typ === 'refresh') {
+      await this.tx.repo(Session).update({ id: payload.sid, revokedAt: IsNull() }, { revokedAt: new Date() });
+    }
+    this.tokens.clearCookies(res);
+  }
+
+  /** Rotates the session: the old refresh token is revoked and a new pair of cookies is issued. */
+  async refresh(refreshToken: string | undefined, res: Response): Promise<{ user: SessionUser }> {
+    const payload = refreshToken ? await this.tokens.verifyRefresh(refreshToken).catch(() => null) : null;
+    const session =
+      payload?.typ === 'refresh' ? await this.tx.repo(Session).findOneBy({ id: payload.sid, userId: payload.sub }) : null;
+    const user = session ? await this.tx.repo(User).findOneBy({ id: session.userId, active: true }) : null;
+    if (!session || session.revokedAt || session.expiresAt < new Date() || !user) {
+      this.tokens.clearCookies(res);
+      throw new AppError(401, 'SESSION_EXPIRED', 'Votre session a expiré. Veuillez vous reconnecter.');
+    }
+    await this.tx.repo(Session).update(session.id, { revokedAt: new Date() });
+    await this.tokens.startSession(user, res);
+    return { user: toSessionUser(user) };
+  }
+
+  /** Ends every open session of a user (password changed, account deactivated). */
+  async revokeAllSessions(userId: string): Promise<void> {
+    await this.tx.repo(Session).update({ userId, revokedAt: IsNull() }, { revokedAt: new Date() });
   }
 
   /**
