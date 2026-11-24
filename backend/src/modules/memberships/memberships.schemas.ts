@@ -36,3 +36,10 @@ export class MembershipApplicationDto extends createZodDto(membershipApplication
 export class ListMembershipsQuery extends createZodDto(
   listQuerySchema.extend({ status: z.enum(MEMBERSHIP_STATUSES).optional() }),
 ) {}
+
+export class DecisionDto extends createZodDto(
+  z.object({ createAccount: z.boolean().default(true) }).optional().transform((body) => body ?? { createAccount: true }),
+) {}
+export class RejectDto extends createZodDto(
+  z.object({ reason: z.string().trim().min(5, 'Le motif est obligatoire (5 caractères minimum).').max(1000) }),
+) {}

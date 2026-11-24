@@ -1,11 +1,13 @@
-import { Body, Controller, Get, Ip, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Ip, Param, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
+import { CurrentUser } from '../../common/current-user.decorator';
 import { Public } from '../../common/public.decorator';
 import { Roles } from '../../common/roles.decorator';
 import { UuidParam } from '../../common/uuid.pipe';
-import { ListMembershipsQuery, MembershipApplicationDto } from './memberships.schemas';
+import type { User } from '../../database/entities';
+import { DecisionDto, ListMembershipsQuery, MembershipApplicationDto, RejectDto } from './memberships.schemas';
 import { MembershipsService } from './memberships.service';
 
 @ApiTags('memberships')
@@ -31,5 +33,20 @@ export class MembershipsController {
   @Get(':id')
   get(@Param('id', UuidParam) id: string) {
     return this.memberships.get(id);
+  }
+
+  /** Creates the member and, unless createAccount is false, a MEMBER account with an invitation. */
+  @Roles('ADMIN')
+  @HttpCode(200)
+  @Post(':id/approve')
+  approve(@Param('id', UuidParam) id: string, @Body() body: DecisionDto, @CurrentUser() user: User) {
+    return this.memberships.approve(id, { userId: user.id }, body);
+  }
+
+  @Roles('ADMIN')
+  @HttpCode(200)
+  @Post(':id/reject')
+  reject(@Param('id', UuidParam) id: string, @Body() body: RejectDto, @CurrentUser() user: User) {
+    return this.memberships.reject(id, body, user.id);
   }
 }

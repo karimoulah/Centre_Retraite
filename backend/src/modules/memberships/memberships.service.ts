@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
 
-import { fieldError, notFound } from '../../common/app-error';
+import { AppError, fieldError, notFound } from '../../common/app-error';
 import { paginate } from '../../common/pagination';
 import { Tx } from '../../common/transaction/transaction.service';
-import { AuditLog, MembershipRequest } from '../../database/entities';
+import { AuditLog, type Member, MembershipRequest, User, UserRole } from '../../database/entities';
 import { TurnstileService } from '../../infrastructure/turnstile/turnstile.service';
+import { PasswordService } from '../auth/password.service';
 import { AuditService } from '../audit/audit.service';
 import { MembersService } from '../members/members.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { SettingsService } from '../settings/settings.service';
 import { fullName } from '../users/user.mapper';
 import { toMembershipRequest } from './membership.mapper';
-import type { ListMembershipsQuery, MembershipApplicationDto } from './memberships.schemas';
+import type { DecisionDto, ListMembershipsQuery, MembershipApplicationDto, RejectDto } from './memberships.schemas';
 
 @Injectable()
 export class MembershipsService {
@@ -22,6 +23,7 @@ export class MembershipsService {
     private readonly settings: SettingsService,
     private readonly notifications: NotificationsService,
     private readonly audit: AuditService,
+    private readonly passwords: PasswordService,
   ) {}
 
   /**
@@ -52,10 +54,14 @@ export class MembershipsService {
     return { id: request.id, status: request.status };
   }
 
-  /** Creates the member and decides the request in the current transaction. */
-  async approve(id: string, by: { automatic: true } | { userId: string }): Promise<MembershipRequest> {
-    const request = await this.tx.repo(MembershipRequest).findOneByOrFail({ id });
+  /**
+   * Creates the member (and by default a MEMBER account with a 72-hour invitation link),
+   * decides the request and queues the welcome e-mail, all in the current transaction.
+   */
+  async approve(id: string, by: { automatic: true } | { userId: string }, options: DecisionDto = { createAccount: true }) {
+    const request = await this.pending(id);
     const member = await this.members.createFromRequest(request);
+    const accountUrl = options.createAccount ? await this.openAccount(member) : null;
     await this.tx.repo(MembershipRequest).update(id, {
       status: 'APPROVED',
       decidedAt: new Date(),
@@ -74,10 +80,68 @@ export class MembershipsService {
     await this.notifications.schedule(
       'MEMBERSHIP_APPROVED',
       member.email,
-      { firstName: member.firstName, memberNumber: member.memberNumber },
+      { firstName: member.firstName, memberNumber: member.memberNumber, accountUrl },
       `membership-approved:${id}`,
     );
-    return this.tx.repo(MembershipRequest).findOneByOrFail({ id });
+    return this.view(id);
+  }
+
+  /** Refusal with a reason (5 characters or more); no e-mail is sent. */
+  async reject(id: string, dto: RejectDto, userId: string) {
+    const request = await this.pending(id);
+    await this.tx.repo(MembershipRequest).update(id, {
+      status: 'REJECTED',
+      decidedAt: new Date(),
+      decidedById: userId,
+      rejectionReason: dto.reason,
+    });
+    await this.audit.record({
+      action: 'MEMBERSHIP_REJECTED',
+      entityType: 'MembershipRequest',
+      entityId: id,
+      entityLabel: fullName(request),
+      before: { status: 'PENDING' },
+      after: { status: 'REJECTED', reason: dto.reason },
+    });
+    return this.view(id);
+  }
+
+  /** Locks the row so two administrators cannot decide the same request at once. */
+  private async pending(id: string): Promise<MembershipRequest> {
+    const request = await this.tx
+      .repo(MembershipRequest)
+      .createQueryBuilder('r')
+      .setLock('pessimistic_write')
+      .where('r.id = :id', { id })
+      .getOne();
+    if (!request) throw notFound('Demande introuvable.');
+    if (request.status !== 'PENDING') {
+      const decided = await this.view(id);
+      const verb = request.status === 'APPROVED' ? 'approuvée' : 'refusée';
+      throw new AppError(409, 'ALREADY_DECIDED', `Cette demande a déjà été traitée (${verb}${decided.decidedBy ? ` par ${decided.decidedBy}` : ''}).`);
+    }
+    return request;
+  }
+
+  /** MEMBER account linked to the member. An existing staff account with the same e-mail gets the role instead. */
+  private async openAccount(member: Member): Promise<string | null> {
+    const users = this.tx.repo(User);
+    const existing = await users.createQueryBuilder('u').where('lower(u.email) = lower(:email)', { email: member.email }).getOne();
+    if (existing) {
+      await users.update(existing.id, { memberId: member.id });
+      await this.tx.repo(UserRole).upsert({ userId: existing.id, role: 'MEMBER' }, ['userId', 'role']);
+      return null;
+    }
+    const saved = await users.save(
+      users.create({ email: member.email, firstName: member.firstName, lastName: member.lastName, memberId: member.id, userRoles: [{ role: 'MEMBER' }] }),
+    );
+    const user = await users.findOneByOrFail({ id: saved.id });
+    await this.audit.record({ action: 'USER_CREATED', entityType: 'User', entityId: user.id, entityLabel: fullName(user), after: { email: user.email, roles: user.roles, memberId: member.id } });
+    return (await this.passwords.createLink(user, 'INVITATION')).url;
+  }
+
+  private async view(id: string) {
+    return toMembershipRequest(await this.tx.repo(MembershipRequest).findOneOrFail({ where: { id }, relations: { decidedBy: true } }));
   }
 
   /** Back-office list: filter by status, search by name or e-mail, newest first by default. */
