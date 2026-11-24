@@ -60,3 +60,7 @@ export class ListEntriesQuery extends createZodDto(
     })
     .refine((q) => !q.from || !q.to || q.from <= q.to, { message: 'La date de fin doit suivre la date de début.', path: ['to'] }),
 ) {}
+
+export class ReverseEntryDto extends createZodDto(
+  z.object({ reason: z.string().trim().min(5, 'Le motif est obligatoire (5 caractères minimum).').max(500) }),
+) {}
