@@ -33,3 +33,6 @@ export const PAYMENT_METHODS = ['CASH', 'CHEQUE', 'CARD', 'TRANSFER', 'ONLINE', 
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 export const ENTRY_SOURCES = ['MANUAL', 'ONLINE'] as const;
 export type EntrySource = (typeof ENTRY_SOURCES)[number];
+
+export const PAYMENT_STATUSES = ['PENDING', 'CONFIRMED', 'FAILED', 'EXPIRED', 'REFUNDED'] as const;
+export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];

@@ -7,12 +7,13 @@ import { Member } from './member.entity';
 import { MembershipRequest } from './membership-request.entity';
 import { Notification } from './notification.entity';
 import { PasswordToken } from './password-token.entity';
+import { Payment, WebhookEvent } from './payment.entity';
 import { Session } from './session.entity';
 import { Setting } from './setting.entity';
 import { User } from './user.entity';
 import { UserRole } from './user-role.entity';
 
 export * from './enums';
-export { AuditLog, Category, Consent, Contributor, Entry, Member, MembershipRequest, Notification, PasswordToken, Session, Setting, User, UserRole };
+export { AuditLog, Category, Consent, Contributor, Entry, Member, MembershipRequest, Notification, PasswordToken, Payment, Session, Setting, User, UserRole, WebhookEvent };
 
-export const entities = [AuditLog, Category, Consent, Contributor, Entry, Member, MembershipRequest, Notification, PasswordToken, Session, Setting, User, UserRole];
+export const entities = [AuditLog, Category, Consent, Contributor, Entry, Member, MembershipRequest, Notification, PasswordToken, Payment, Session, Setting, User, UserRole, WebhookEvent];

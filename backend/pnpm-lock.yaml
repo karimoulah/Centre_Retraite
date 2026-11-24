@@ -77,6 +77,9 @@ importers:
       rxjs:
         specifier: 7.8.2
         version: 7.8.2
+      stripe:
+        specifier: 23.2.0
+        version: 23.2.0(@types/node@22.19.9)
       typeorm:
         specifier: 0.3.31
         version: 0.3.31(ioredis@5.11.1)(pg@8.23.1)(ts-node@10.9.2(@types/node@22.19.9)(typescript@5.9.3))
@@ -3213,6 +3216,15 @@ packages:
   strip-json-comments@5.1.0:
     resolution: {integrity: sha512-ErcwpJBYr8EfX/Br7JauOIGXoRE92w0hVtuS9j92UFgbATxA+WRSIZksSUDzEeItfWB/0QCEprTZT55RSINUHQ==}
     engines: {node: '>=22'}
+
+  stripe@23.2.0:
+    resolution: {integrity: sha512-0W0J4yA9qFO2rnF61v8Y62OiO2SmAR+Cv04VJaFUMpCxiq8lG5bxEYbeSMSpMDR9ofFZGd+Z/iUIgSFbOolmUw==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@types/node': '>=20'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   strtok3@10.8.0:
     resolution: {integrity: sha512-e6bW3fD6V01DPmcbLfNtn0cjsiHvTKS/hivgbzqYMfHb/nLes4QQ0H5QBxlkPQayF4xv08AvlSgptGwN86Eemw==}
@@ -7191,6 +7203,10 @@ snapshots:
   strip-json-comments@3.1.1: {}
 
   strip-json-comments@5.1.0: {}
+
+  stripe@23.2.0(@types/node@22.19.9):
+    optionalDependencies:
+      '@types/node': 22.19.9
 
   strtok3@10.8.0:
     dependencies:
