@@ -305,3 +305,14 @@ export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
 
 /** GET /settings/finance (finance and admin) — expenses above the threshold need a second person. */
 export type FinanceSettings = { expenseApprovalThresholdCents: number; updatedAt: string | null; updatedBy: string | null };
+
+/* ------------------------------------------------------------------ Dons en ligne (sprint 2) */
+
+/** POST /donations/checkout → the browser goes to the provider's payment page (Stripe Checkout). */
+export type DonationCheckoutRequest = { amountCents: number; donorName: string; donorEmail: string; turnstileToken: string };
+export type DonationCheckout = { url: string };
+export const DONATION_PRESETS_CENTS = [2_500, 5_000, 10_000, 25_000] as const;
+export const MIN_DONATION_CENTS = 500;
+
+/** GET /donations/sessions/:sessionId — status shown on the thank-you page. */
+export type DonationStatus = { status: 'PENDING' | 'CONFIRMED' | 'FAILED' | 'EXPIRED' | 'REFUNDED'; amountCents: number };
