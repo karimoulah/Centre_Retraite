@@ -7,6 +7,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  VirtualColumn,
 } from 'typeorm';
 
 import type { Role } from './enums';
@@ -21,6 +22,8 @@ export class User {
   @Column({ name: 'first_name' }) firstName!: string;
   @Column({ name: 'last_name' }) lastName!: string;
   @Column({ default: true }) active!: boolean;
+  /** True until the invited person chooses a password. */
+  @VirtualColumn({ type: 'boolean', query: (alias) => `SELECT ${alias}.password_hash IS NULL` }) invitationPending!: boolean;
   @Column({ name: 'failed_attempts', default: 0 }) failedAttempts!: number;
   @Column({ name: 'locked_until', type: 'timestamptz', nullable: true }) lockedUntil!: Date | null;
   @Column({ name: 'last_login_at', type: 'timestamptz', nullable: true }) lastLoginAt!: Date | null;
