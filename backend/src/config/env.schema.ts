@@ -14,7 +14,6 @@ export const envSchema = z
     WEB_URL: z.url().default('http://localhost:5173'),
 
     DATABASE_URL: z.url(),
-    DATABASE_SCHEMA: z.string().regex(/^[a-z_]+$/).default('app'),
     REDIS_URL: z.url().default('redis://localhost:6379'),
 
     JWT_ACCESS_SECRET: z.string().min(32, 'must be at least 32 characters'),

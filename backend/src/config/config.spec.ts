@@ -10,7 +10,6 @@ describe('loadEnv', () => {
   it('applies defaults to a minimal valid environment', () => {
     const env = loadEnv(valid);
     expect(env.PORT).toBe(3000);
-    expect(env.DATABASE_SCHEMA).toBe('app');
     expect(env.COOKIE_SECURE).toBe(false);
     expect(env.SWAGGER_ENABLED).toBe(true);
   });
