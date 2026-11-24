@@ -2,6 +2,7 @@ import { auditRoutes } from './audit';
 import { authRoutes, passwordRoutes } from './auth';
 import { contactRoutes } from './contact';
 import { entryReadRoutes } from './entries';
+import { entryWriteRoutes } from './entries-write';
 import { categoryRoutes, contributorRoutes } from './finance';
 import { healthRoutes } from './health';
 import { membershipRoutes } from './memberships';
@@ -13,7 +14,7 @@ import type { MockRequest, MockResponse, MockRoute } from './types';
  * Mock API used while API_MODE=mock. Each module registers its routes here;
  * components never know whether data comes from a mock or from NestJS.
  */
-const routes: MockRoute[] = [...healthRoutes, ...authRoutes, ...passwordRoutes, ...testimonialRoutes, ...contactRoutes, ...userRoutes, ...membershipRoutes, ...auditRoutes, ...categoryRoutes, ...contributorRoutes, ...entryReadRoutes];
+const routes: MockRoute[] = [...healthRoutes, ...authRoutes, ...passwordRoutes, ...testimonialRoutes, ...contactRoutes, ...userRoutes, ...membershipRoutes, ...auditRoutes, ...categoryRoutes, ...contributorRoutes, ...entryReadRoutes, ...entryWriteRoutes];
 
 function match(pattern: string, path: string): Record<string, string> | null {
   const patternParts = pattern.split('/').filter(Boolean);

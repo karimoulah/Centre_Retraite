@@ -47,7 +47,11 @@ export function ContributorForm({
 
   return (
     <form
-      onSubmit={onSubmit}
+      onSubmit={(event) => {
+        // Also used in a dialog inside the entry form: the submit must not reach that outer form.
+        event.stopPropagation();
+        void onSubmit(event);
+      }}
       noValidate
       className="flex flex-col gap-6"
       aria-label={contributor ? 'Fiche du contributeur' : 'Nouveau contributeur'}

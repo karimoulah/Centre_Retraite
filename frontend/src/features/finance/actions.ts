@@ -5,8 +5,11 @@ import { revalidatePath } from 'next/cache';
 import { runAction, type ActionResult } from '@/lib/actions';
 import { api } from '@/lib/api/api';
 import type {
+  AttachmentUpload,
   Category,
   Contributor,
+  Entry,
+  EntryDetail,
   EntryDirection,
   UpdateCategoryRequest,
 } from '@/lib/api/contracts';
@@ -15,8 +18,12 @@ import { requireRole } from '@/lib/session';
 import {
   categorySchema,
   contributorSchema,
+  entrySchema,
+  expenseSchema,
+  toEntryRequest,
   type CategoryValues,
   type ContributorValues,
+  type EntryValues,
 } from './schemas';
 
 const invalid = { ok: false as const, message: 'Vérifiez les champs du formulaire.' };
@@ -108,4 +115,84 @@ export async function searchContributorsAction(q: string): Promise<Contributor[]
   await requireRole('FINANCE');
   const page = await api<{ items: Contributor[] }>('/contributors', { query: { q, pageSize: 8 } });
   return page.items;
+}
+
+/** New income (F5-04) or expense (F5-05): returns the entry so the form can send its receipt, then open it. */
+export async function createEntryAction(
+  direction: EntryDirection,
+  values: EntryValues,
+): Promise<ActionResult<Entry>> {
+  await requireRole('FINANCE');
+  const parsed = (direction === 'INCOME' ? entrySchema : expenseSchema).safeParse(values);
+  if (!parsed.success) return invalid;
+  const result = await runAction(
+    () =>
+      api<Entry>(direction === 'INCOME' ? '/entries' : '/expenses', {
+        method: 'POST',
+        body: toEntryRequest(parsed.data, direction),
+      }),
+    direction === 'INCOME' ? 'Recette enregistrée comme brouillon.' : 'Dépense enregistrée.',
+  );
+  if (result.ok) revalidatePath(`${FINANCE}/entries`);
+  return result;
+}
+
+export async function updateEntryAction(
+  id: string,
+  direction: EntryDirection,
+  values: EntryValues,
+): Promise<ActionResult<Entry>> {
+  await requireRole('FINANCE');
+  const parsed = (direction === 'INCOME' ? entrySchema : expenseSchema).safeParse(values);
+  if (!parsed.success) return invalid;
+  const result = await runAction(
+    () =>
+      api<Entry>(`/entries/${id}`, {
+        method: 'PATCH',
+        body: toEntryRequest(parsed.data, direction),
+      }),
+    'Brouillon enregistré.',
+  );
+  if (result.ok) revalidatePath(`${FINANCE}/entries`, 'layout');
+  return result;
+}
+
+/** Receipt, step 1: signed upload URL. The browser then PUTs the file itself (progress bar). */
+export async function requestUploadAction(
+  entryId: string,
+  file: { fileName: string; contentType: string; size: number },
+): Promise<ActionResult<AttachmentUpload>> {
+  await requireRole('FINANCE');
+  return runAction(() =>
+    api<AttachmentUpload>(`/entries/${entryId}/attachment`, { method: 'POST', body: file }),
+  );
+}
+
+/** Receipt, step 3: the API checks the stored file and attaches it. */
+export async function confirmUploadAction(
+  entryId: string,
+  key: string,
+  fileName: string,
+): Promise<ActionResult<EntryDetail>> {
+  await requireRole('FINANCE');
+  const result = await runAction(
+    () =>
+      api<EntryDetail>(`/entries/${entryId}/attachment/confirm`, {
+        method: 'POST',
+        body: { key, fileName },
+      }),
+    'Pièce justificative jointe.',
+  );
+  if (result.ok) revalidatePath(`${FINANCE}/entries/${entryId}`);
+  return result;
+}
+
+export async function removeAttachmentAction(entryId: string): Promise<ActionResult> {
+  await requireRole('FINANCE');
+  const result = await runAction(
+    () => api<void>(`/entries/${entryId}/attachment`, { method: 'DELETE' }),
+    'Pièce retirée.',
+  );
+  if (result.ok) revalidatePath(`${FINANCE}/entries/${entryId}`);
+  return result;
 }

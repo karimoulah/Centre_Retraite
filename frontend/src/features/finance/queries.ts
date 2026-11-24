@@ -8,6 +8,7 @@ import type {
   EntriesQuery,
   EntryDetail,
   EntryDirection,
+  FinanceSettings,
   ListQuery,
   Paginated,
 } from '@/lib/api/contracts';
@@ -21,3 +22,4 @@ export const getContributor = (id: string) =>
   api<Contributor>(`/contributors/${encodeURIComponent(id)}`);
 export const getEntries = (query: EntriesQuery) => api<EntriesPage>('/entries', { query });
 export const getEntry = (id: string) => api<EntryDetail>(`/entries/${encodeURIComponent(id)}`);
+export const getFinanceSettings = () => api<FinanceSettings>('/settings/finance');

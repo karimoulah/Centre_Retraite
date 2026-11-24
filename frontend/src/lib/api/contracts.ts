@@ -285,3 +285,23 @@ export type EntriesQuery = ListQuery & {
   paymentMethod?: PaymentMethod;
   project?: string;
 };
+
+/** POST /entries (income) and POST /expenses. Amount in cents. */
+export type EntryRequest = {
+  amountCents: number;
+  entryDate: string;
+  categoryId: string;
+  paymentMethod: (typeof MANUAL_PAYMENT_METHODS)[number];
+  description: string;
+  project?: string | null;
+  contributorId?: string | null;
+  supplier?: string;
+};
+
+/** POST /entries/:id/attachment → the browser PUTs the file to uploadUrl, then confirms. */
+export type AttachmentUpload = { key: string; uploadUrl: string; method: 'PUT'; headers: Record<string, string>; expiresAt: string };
+export const ATTACHMENT_TYPES = ['application/pdf', 'image/jpeg', 'image/png'] as const;
+export const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+
+/** GET /settings/finance (finance and admin) — expenses above the threshold need a second person. */
+export type FinanceSettings = { expenseApprovalThresholdCents: number; updatedAt: string | null; updatedBy: string | null };
