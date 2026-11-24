@@ -42,6 +42,12 @@ export const envSchema = z
     /** Public base of this API (links of the fake checkout page). */
     API_PUBLIC_URL: z.url().default('http://localhost:3000/api/v1'),
 
+    /** Assistant (EP9): "voyage" embeddings (docs/ia/choix-llm-embeddings.md) or "fake" (local, deterministic: development and tests). */
+    EMBEDDINGS_DRIVER: z.enum(['voyage', 'fake']).default('fake'),
+    VOYAGE_API_KEY: z.string().optional(),
+    /** Shared with Payload: signs the page-change notifications sent to POST /internal/chatbot/sync (HMAC-SHA256). */
+    CHATBOT_SYNC_SECRET: z.string().min(32).default('local-development-chatbot-sync-secret'),
+
     /** Receipts and media: "local" (files on disk, development and tests) or "r2" (Cloudflare R2, private bucket). */
     STORAGE_DRIVER: z.enum(['local', 'r2']).default('local'),
     STORAGE_LOCAL_DIR: z.string().default('.storage'),
@@ -74,6 +80,12 @@ export const envSchema = z
     }
     if (env.NODE_ENV === 'production' && (env.PAYMENTS_DRIVER !== 'stripe' || env.STRIPE_WEBHOOK_SECRET === 'whsec_local_development_only')) {
       ctx.addIssue({ code: 'custom', path: ['PAYMENTS_DRIVER'], message: 'stripe with a real webhook secret is required in production' });
+    }
+    if (env.EMBEDDINGS_DRIVER === 'voyage' && !env.VOYAGE_API_KEY) {
+      ctx.addIssue({ code: 'custom', path: ['VOYAGE_API_KEY'], message: 'required when EMBEDDINGS_DRIVER=voyage' });
+    }
+    if (env.NODE_ENV === 'production' && env.CHATBOT_SYNC_SECRET === 'local-development-chatbot-sync-secret') {
+      ctx.addIssue({ code: 'custom', path: ['CHATBOT_SYNC_SECRET'], message: 'set a real secret in production' });
     }
     if (env.STORAGE_DRIVER === 'r2') {
       for (const key of ['R2_ACCOUNT_ID', 'R2_ACCESS_KEY_ID', 'R2_SECRET_ACCESS_KEY', 'R2_BUCKET'] as const) {
