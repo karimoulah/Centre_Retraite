@@ -75,7 +75,7 @@ test.describe('fiche d’une écriture', () => {
     await expect(page.getByRole('button', { name: 'Contrepasser' })).toHaveCount(0);
 
     await page.goto(original);
-    await expect(page.getByText('Contrepassée par')).toBeVisible();
+    await expect(page.getByText('Contrepassée par').first()).toBeVisible();
     await expect(page.getByRole('button', { name: 'Contrepasser' })).toHaveCount(0);
   });
 
