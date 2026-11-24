@@ -3,8 +3,9 @@ import Link from 'next/link';
 
 import { DetailList } from '@/components/backoffice/DetailList';
 import { PageHeader } from '@/components/backoffice/PageHeader';
+import { ContributorEntries } from '@/features/finance/components/ContributorEntries';
 import { ContributorForm } from '@/features/finance/components/ContributorForm';
-import { getContributor } from '@/features/finance/queries';
+import { getContributor, getEntries } from '@/features/finance/queries';
 import { CONTRIBUTOR_KIND_LABELS } from '@/lib/api/contracts';
 import { formatDate } from '@/lib/format';
 import { requireRole } from '@/lib/session';
@@ -15,7 +16,11 @@ type Props = { params: Promise<{ id: string }> };
 
 export default async function ContributorPage({ params }: Props) {
   await requireRole('FINANCE');
-  const contributor = await getContributor((await params).id);
+  const { id } = await params;
+  const [contributor, entries] = await Promise.all([
+    getContributor(id),
+    getEntries({ contributorId: id, direction: 'INCOME', pageSize: 50 }),
+  ]);
   return (
     <>
       <PageHeader
@@ -56,6 +61,12 @@ export default async function ContributorPage({ params }: Props) {
           />
         </section>
       </div>
+      <section aria-labelledby="contributor-entries" className="mt-8">
+        <h2 id="contributor-entries" className="mb-4 text-xl">
+          Dons et recettes
+        </h2>
+        <ContributorEntries data={entries} />
+      </section>
     </>
   );
 }

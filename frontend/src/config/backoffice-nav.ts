@@ -1,4 +1,5 @@
 import {
+  BookOpenCheck,
   ClipboardList,
   HandCoins,
   Tags,
@@ -41,6 +42,7 @@ export const backofficeNav: NavGroup[] = [
   {
     label: 'Finances',
     items: [
+      { href: '/backoffice/finance/entries', label: 'Écritures', icon: BookOpenCheck, roles: ['FINANCE'] },
       { href: '/backoffice/finance/categories', label: 'Catégories', icon: Tags, roles: ['FINANCE'] },
       { href: '/backoffice/finance/contributors', label: 'Contributeurs', icon: HandCoins, roles: ['FINANCE'] },
     ],
@@ -68,6 +70,8 @@ export const segmentLabels: Record<string, string> = {
   finance: 'Finances',
   categories: 'Catégories',
   contributors: 'Contributeurs',
+  entries: 'Écritures',
+  expenses: 'Dépenses',
 };
 
 export function navFor(roles: Role[]): NavGroup[] {

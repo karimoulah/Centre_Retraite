@@ -212,3 +212,76 @@ export type ContributorRequest = {
   notes?: string | null;
   memberId?: string | null;
 };
+
+export const ENTRY_STATUSES = ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'VALIDATED'] as const;
+export type EntryStatus = (typeof ENTRY_STATUSES)[number];
+export const ENTRY_STATUS_LABELS: Record<EntryStatus, string> = {
+  DRAFT: 'Brouillon',
+  SUBMITTED: 'À approuver',
+  APPROVED: 'Approuvée',
+  REJECTED: 'Refusée',
+  VALIDATED: 'Validée',
+};
+export const PAYMENT_METHODS = ['CASH', 'CHEQUE', 'CARD', 'TRANSFER', 'ONLINE', 'OTHER'] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  CASH: 'Argent comptant',
+  CHEQUE: 'Chèque',
+  CARD: 'Carte',
+  TRANSFER: 'Virement',
+  ONLINE: 'En ligne',
+  OTHER: 'Autre',
+};
+/** Methods a person can enter by hand; ONLINE is reserved to online donations. */
+export const MANUAL_PAYMENT_METHODS = ['CASH', 'CHEQUE', 'CARD', 'TRANSFER', 'OTHER'] as const;
+
+type Person = { id: string; name: string } | null;
+type EntryLink = { id: string; reference: string } | null;
+
+/** GET /entries items. Amounts in cents; a reversal has the opposite (negative) amount. */
+export type Entry = {
+  id: string;
+  reference: string;
+  direction: EntryDirection;
+  status: EntryStatus;
+  amountCents: number;
+  entryDate: string;
+  category: { id: string; name: string };
+  contributor: { id: string; name: string } | null;
+  supplier: string | null;
+  paymentMethod: PaymentMethod;
+  project: string | null;
+  description: string;
+  source: 'MANUAL' | 'ONLINE';
+  attachment: { name: string; type: string; size: number; url?: string | null } | null;
+  reverses: EntryLink;
+  reversedBy: EntryLink;
+  reversalReason: string | null;
+  createdBy: Person;
+  createdAt: string;
+  decidedBy: Person;
+  decidedAt: string | null;
+  rejectionReason: string | null;
+  validatedBy: Person;
+  validatedAt: string | null;
+};
+
+/** Totals of the whole filtered selection, not only the page. */
+export type EntryTotals = { count: number; incomeCents: number; expenseCents: number; balanceCents: number };
+export type EntriesPage = Paginated<Entry> & { totals: EntryTotals };
+
+/** GET /entries/:id */
+export type EntryDetail = Entry & {
+  history: { at: string; action: string; actor: Person; before?: Record<string, unknown> | null; after?: Record<string, unknown> | null }[];
+};
+
+export type EntriesQuery = ListQuery & {
+  from?: string;
+  to?: string;
+  categoryId?: string;
+  contributorId?: string;
+  direction?: EntryDirection;
+  status?: EntryStatus;
+  paymentMethod?: PaymentMethod;
+  project?: string;
+};
