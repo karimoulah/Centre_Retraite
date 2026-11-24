@@ -3,7 +3,7 @@ import type { Request } from 'express';
 import { from, lastValueFrom, type Observable } from 'rxjs';
 import { DataSource } from 'typeorm';
 
-import { RequestContext } from './request-context';
+import { flushAfterCommit, RequestContext } from './request-context';
 import { setActor } from './transaction.service';
 
 const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
@@ -20,11 +20,19 @@ export class TransactionInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<Request & { user?: { id: string } }>();
     if (!WRITE_METHODS.has(request.method)) return next.handle();
 
+    const afterCommit: Array<() => Promise<unknown>> = [];
     return from(
-      this.dataSource.transaction(async (manager) => {
-        await setActor(manager, request.user?.id);
-        return RequestContext.run({ manager }, () => lastValueFrom(next.handle(), { defaultValue: undefined }));
-      }),
+      this.dataSource
+        .transaction(async (manager) => {
+          await setActor(manager, request.user?.id);
+          return RequestContext.run({ manager, afterCommit }, () =>
+            lastValueFrom(next.handle(), { defaultValue: undefined }),
+          );
+        })
+        .then(async (result) => {
+          await flushAfterCommit(afterCommit);
+          return result;
+        }),
     );
   }
 }

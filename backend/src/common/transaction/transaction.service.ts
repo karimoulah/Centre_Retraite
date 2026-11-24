@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, type EntityManager, type EntityTarget, type ObjectLiteral, type Repository } from 'typeorm';
 
-import { RequestContext } from './request-context';
+import { flushAfterCommit, RequestContext } from './request-context';
 
 /** Gives services the request's transactional manager, so every write of a request commits or rolls back together. */
 @Injectable()
@@ -18,10 +18,13 @@ export class Tx {
 
   /** Runs `fn` in a transaction outside of an HTTP request (queues, scripts), with an optional author. */
   async run<T>(fn: (manager: EntityManager) => Promise<T>, actorId?: string | null): Promise<T> {
-    return this.dataSource.transaction(async (manager) => {
+    const afterCommit: Array<() => Promise<unknown>> = [];
+    const result = await this.dataSource.transaction(async (manager) => {
       await setActor(manager, actorId);
-      return RequestContext.run({ manager }, () => fn(manager));
+      return RequestContext.run({ manager, afterCommit }, () => fn(manager));
     });
+    await flushAfterCommit(afterCommit);
+    return result;
   }
 }
 

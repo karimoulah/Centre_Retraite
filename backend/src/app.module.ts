@@ -9,6 +9,7 @@ import { RedisModule } from './infrastructure/redis/redis.module';
 import { AuditModule } from './modules/audit/audit.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
-@Module({ imports: [ConfigModule, LoggingModule, CommonModule, DatabaseModule, RedisModule, MailModule, AuditModule, HealthModule, AuthModule] })
+@Module({ imports: [ConfigModule, LoggingModule, CommonModule, DatabaseModule, RedisModule, MailModule, NotificationsModule, AuditModule, HealthModule, AuthModule] })
 export class AppModule {}
