@@ -10,7 +10,8 @@ export type TestApp = { app: INestApplication; dataSource: DataSource; http: Ret
 /** The real AppModule with the production pipeline (prefix, cookies, filters, guards). */
 export async function createTestApp(extra: ModuleMetadata = {}): Promise<TestApp> {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule, ...(extra.imports ?? [])], ...extra }).compile();
-  const app = moduleRef.createNestApplication({ logger: false });
+  // rawBody: the Stripe webhook verifies its signature on the exact bytes received.
+  const app = moduleRef.createNestApplication({ logger: false, rawBody: true });
   configureApp(app);
   await app.init();
   return { app, dataSource: app.get(DataSource), http: app.getHttpServer() };

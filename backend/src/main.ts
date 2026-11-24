@@ -8,7 +8,7 @@ import { ENV, type Env } from './config/config.module';
 
 async function bootstrap() {
   loadDotEnv();
-  const app = configureApp(await NestFactory.create(AppModule, { bufferLogs: true }));
+  const app = configureApp(await NestFactory.create(AppModule, { bufferLogs: true, rawBody: true }));
   app.useLogger(app.get(Logger));
   await app.listen(app.get<Env>(ENV).PORT);
 }
