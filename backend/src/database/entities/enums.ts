@@ -19,3 +19,6 @@ export type TokenPurpose = (typeof TOKEN_PURPOSES)[number];
 /** QUEUED → SENT; FAILED = an attempt failed and another is planned; ABANDONED = every attempt failed. */
 export const NOTIFICATION_STATUSES = ['QUEUED', 'SENT', 'FAILED', 'ABANDONED'] as const;
 export type NotificationStatus = (typeof NOTIFICATION_STATUSES)[number];
+
+export const ENTRY_DIRECTIONS = ['INCOME', 'EXPENSE'] as const;
+export type EntryDirection = (typeof ENTRY_DIRECTIONS)[number];

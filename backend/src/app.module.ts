@@ -14,10 +14,11 @@ import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './modules/health/health.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ContactModule } from './modules/contact/contact.module';
+import { FinanceModule } from './modules/finance/finance.module';
 import { MembersModule } from './modules/members/members.module';
 import { MembershipsModule } from './modules/memberships/memberships.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
 
-@Module({ imports: [ConfigModule, LoggingModule, CommonModule, SecurityModule, DatabaseModule, RedisModule, MailModule, TurnstileModule, RateLimitModule, NotificationsModule, AuditModule, HealthModule, AuthModule, UsersModule, SettingsModule, MembershipsModule, MembersModule, ContactModule] })
+@Module({ imports: [ConfigModule, LoggingModule, CommonModule, SecurityModule, DatabaseModule, RedisModule, MailModule, TurnstileModule, RateLimitModule, NotificationsModule, AuditModule, HealthModule, AuthModule, UsersModule, SettingsModule, MembershipsModule, MembersModule, ContactModule, FinanceModule] })
 export class AppModule {}
