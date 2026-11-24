@@ -22,6 +22,8 @@ const CONSTRAINTS: Record<string, { code: string; field?: string; message: strin
   users_email_key: { code: 'EMAIL_TAKEN', field: 'email', message: 'Un compte existe déjà avec ce courriel.' },
   members_email_key: { code: 'EMAIL_TAKEN', field: 'email', message: 'Un membre existe déjà avec ce courriel.' },
   categories_name_key: { code: 'CATEGORY_EXISTS', field: 'name', message: 'Une catégorie porte déjà ce nom dans ce sens.' },
+  contributors_email_key: { code: 'EMAIL_TAKEN', field: 'email', message: 'Un contributeur existe déjà avec ce courriel.' },
+  contributors_member_id_key: { code: 'MEMBER_ALREADY_LINKED', field: 'memberId', message: 'Ce membre est déjà lié à un autre contributeur.' },
   consents_one_active: { code: 'CONSENT_ALREADY_ACTIVE', message: 'Ce consentement est déjà actif.' },
 };
 

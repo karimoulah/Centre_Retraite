@@ -22,3 +22,6 @@ export type NotificationStatus = (typeof NOTIFICATION_STATUSES)[number];
 
 export const ENTRY_DIRECTIONS = ['INCOME', 'EXPENSE'] as const;
 export type EntryDirection = (typeof ENTRY_DIRECTIONS)[number];
+
+export const CONTRIBUTOR_KINDS = ['INDIVIDUAL', 'ORGANIZATION'] as const;
+export type ContributorKind = (typeof CONTRIBUTOR_KINDS)[number];
