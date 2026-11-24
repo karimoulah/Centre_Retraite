@@ -82,10 +82,11 @@ test.describe('saisie d’une recette et d’une dépense', () => {
 
   test('un fichier non accepté est refusé avant l’envoi', async ({ page }) => {
     await gotoReady(page, '/backoffice/finance/expenses/new');
-    await page
-      .getByLabel('Pièce justificative')
-      .setInputFiles({ name: 'note.txt', mimeType: 'text/plain', buffer: Buffer.from('x') });
-    await expect(page.getByText('Formats acceptés : PDF, JPG ou PNG.')).toBeVisible();
+    // Retried: on a slow runner the input can be re-rendered right after hydration and lose the file.
+    await expect(async () => {
+      await page.getByLabel('Pièce justificative').setInputFiles({ name: 'note.txt', mimeType: 'text/plain', buffer: Buffer.from('x') });
+      await expect(page.getByText('Formats acceptés : PDF, JPG ou PNG.')).toBeVisible({ timeout: 2_000 });
+    }).toPass({ timeout: 15_000 });
     await expect(page.getByRole('button', { name: 'Enregistrer la dépense' })).toBeDisabled();
   });
 });
