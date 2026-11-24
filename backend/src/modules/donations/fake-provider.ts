@@ -12,15 +12,13 @@ import { type CheckoutRequest, type CheckoutSession, PaymentProvider, type Provi
 export class FakeProvider extends PaymentProvider {
   readonly name = 'FAKE';
   private readonly stripe = new Stripe('sk_test_offline_signature_only');
-  readonly sessions = new Map<string, CheckoutRequest>();
 
   constructor(private readonly env: Env) {
     super();
   }
 
-  async createCheckout(r: CheckoutRequest): Promise<CheckoutSession> {
+  async createCheckout(_request: CheckoutRequest): Promise<CheckoutSession> {
     const sessionId = `cs_fake_${randomUUID().replace(/-/g, '')}`;
-    this.sessions.set(sessionId, r);
     return { sessionId, url: `${this.env.API_PUBLIC_URL.replace(/\/$/, '')}/dev/checkout/${sessionId}` };
   }
 
