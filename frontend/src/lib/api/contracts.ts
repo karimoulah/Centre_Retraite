@@ -166,3 +166,49 @@ export type UpdateMemberRequest = Partial<Pick<Member, 'firstName' | 'lastName' 
 export type UpdateMyProfileRequest = Pick<Member, 'phone' | 'address'>;
 /** PUT /me/consents */
 export type UpdateConsentsRequest = Partial<Record<MemberConsentKey, boolean>>;
+
+/* ------------------------------------------------------------------ Finances (sprint 2) */
+
+export const ENTRY_DIRECTIONS = ['INCOME', 'EXPENSE'] as const;
+export type EntryDirection = (typeof ENTRY_DIRECTIONS)[number];
+export const DIRECTION_LABELS: Record<EntryDirection, string> = { INCOME: 'Recette', EXPENSE: 'Dépense' };
+
+/** GET /categories (plain list, no pagination). `system`: used by online donations, stays active. */
+export type Category = {
+  id: string;
+  name: string;
+  direction: EntryDirection;
+  receiptEligible: boolean;
+  active: boolean;
+  system: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+export type CreateCategoryRequest = Pick<Category, 'name' | 'direction' | 'receiptEligible'>;
+export type UpdateCategoryRequest = Partial<Pick<Category, 'name' | 'receiptEligible' | 'active'>>;
+
+export const CONTRIBUTOR_KINDS = ['INDIVIDUAL', 'ORGANIZATION'] as const;
+export type ContributorKind = (typeof CONTRIBUTOR_KINDS)[number];
+export const CONTRIBUTOR_KIND_LABELS: Record<ContributorKind, string> = { INDIVIDUAL: 'Personne', ORGANIZATION: 'Organisme' };
+
+/** GET /contributors, GET /contributors/:id */
+export type Contributor = {
+  id: string;
+  kind: ContributorKind;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  notes: string | null;
+  member: { id: string; memberNumber: string; name: string } | null;
+  createdAt: string;
+};
+export type ContributorRequest = {
+  kind: ContributorKind;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  notes?: string | null;
+  memberId?: string | null;
+};

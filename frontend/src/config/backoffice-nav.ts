@@ -1,5 +1,7 @@
 import {
   ClipboardList,
+  HandCoins,
+  Tags,
   FileText,
   History,
   LayoutDashboard,
@@ -37,6 +39,13 @@ export const backofficeNav: NavGroup[] = [
     ],
   },
   {
+    label: 'Finances',
+    items: [
+      { href: '/backoffice/finance/categories', label: 'Catégories', icon: Tags, roles: ['FINANCE'] },
+      { href: '/backoffice/finance/contributors', label: 'Contributeurs', icon: HandCoins, roles: ['FINANCE'] },
+    ],
+  },
+  {
     label: 'Administration',
     items: [
       { href: '/backoffice/users', label: 'Utilisateurs', icon: UserCog, roles: ['ADMIN'] },
@@ -56,6 +65,9 @@ export const segmentLabels: Record<string, string> = {
   audit: "Journal d'audit",
   settings: 'Paramètres',
   new: 'Nouveau',
+  finance: 'Finances',
+  categories: 'Catégories',
+  contributors: 'Contributeurs',
 };
 
 export function navFor(roles: Role[]): NavGroup[] {
