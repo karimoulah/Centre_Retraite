@@ -93,6 +93,8 @@ describe('Confirmed payment → validated entry (B7-03)', () => {
       .expect(201);
     const path = new URL(res.body.url).pathname;
     const page = await request(t.http).get(path).expect(200);
+    expect(page.headers['referrer-policy']).toBe('same-origin');
+    expect(page.headers['content-security-policy']).toContain("form-action 'self' http://localhost:5173");
     expect(page.text).toContain('15,00');
     expect(page.text).not.toContain('<b>Côté</b>');
     const paid = await request(t.http).post(`${path}/pay`).set('Origin', 'http://localhost:3000').expect(303);
