@@ -6,7 +6,7 @@ import { Notification } from '../../src/database/entities';
 import { MailService } from '../../src/infrastructure/mail/mail.service';
 import type { MemoryMailService } from '../../src/infrastructure/mail/memory-mail.service';
 import { NOTIFICATIONS_QUEUE } from '../../src/modules/notifications/notifications.constants';
-import { sendNotification } from '../../src/modules/notifications/notifications.processor';
+import { recordFailure, sendNotification } from '../../src/modules/notifications/notifications.processor';
 import { NotificationsService } from '../../src/modules/notifications/notifications.service';
 import { createTestApp, type TestApp } from '../setup/app';
 
@@ -61,5 +61,47 @@ describe('Notification queue (B5-02)', () => {
     expect(mail.lastTo('d@test.local')!.text).toContain('http://lien');
     const sent = await t.dataSource.getRepository(Notification).findOneByOrFail({ id: row.id });
     expect(sent).toMatchObject({ status: 'SENT', attempts: 1 });
+  });
+});
+
+describe('Worker retries (B5-03)', () => {
+  let t: TestApp;
+  let tx: Tx;
+  let service: NotificationsService;
+  beforeAll(async () => {
+    t = await createTestApp();
+    tx = t.app.get(Tx);
+    service = t.app.get(NotificationsService);
+  });
+  afterAll(() => t.app.close());
+
+  const scheduled = async (key: string) => {
+    await tx.run(() => service.schedule('MEMBERSHIP_RECEIVED', 'e@test.local', { firstName: 'Eva' }, key));
+    return t.dataSource.getRepository(Notification).findOneByOrFail({ uniqueKey: key });
+  };
+
+  it('queues 3 attempts with a growing delay', async () => {
+    const row = await scheduled(`opts-${Date.now()}`);
+    const job = await t.app.get<Queue>(getQueueToken(NOTIFICATIONS_QUEUE)).getJob(row.id);
+    expect(job?.opts).toMatchObject({ attempts: 3, backoff: { type: 'exponential', delay: 60_000 } });
+  });
+
+  it('marks FAILED with the error while retrying, then ABANDONED after the last attempt', async () => {
+    const row = await scheduled(`fail-${Date.now()}`);
+    expect(await recordFailure(t.dataSource, row.id, 1, 3, new Error('SMTP timeout'))).toBe('FAILED');
+    expect(await t.dataSource.getRepository(Notification).findOneByOrFail({ id: row.id })).toMatchObject({
+      status: 'FAILED',
+      lastError: 'SMTP timeout',
+      failedAt: expect.any(Date),
+    });
+    expect(await recordFailure(t.dataSource, row.id, 3, 3, new Error('Brevo 503'))).toBe('ABANDONED');
+    expect(await t.dataSource.getRepository(Notification).findOneByOrFail({ id: row.id })).toMatchObject({ status: 'ABANDONED', lastError: 'Brevo 503' });
+  });
+
+  it('a retry that succeeds ends SENT and clears the error', async () => {
+    const row = await scheduled(`retry-${Date.now()}`);
+    await recordFailure(t.dataSource, row.id, 1, 3, new Error('timeout'));
+    await sendNotification(t.dataSource, t.app.get(MailService), row.id);
+    expect(await t.dataSource.getRepository(Notification).findOneByOrFail({ id: row.id })).toMatchObject({ status: 'SENT', lastError: null });
   });
 });

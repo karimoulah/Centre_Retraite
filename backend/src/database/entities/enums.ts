@@ -16,5 +16,6 @@ export type ConsentChannel = (typeof CONSENT_CHANNELS)[number];
 export const TOKEN_PURPOSES = ['RESET', 'INVITATION'] as const;
 export type TokenPurpose = (typeof TOKEN_PURPOSES)[number];
 
-export const NOTIFICATION_STATUSES = ['QUEUED', 'SENT', 'FAILED'] as const;
+/** QUEUED → SENT; FAILED = an attempt failed and another is planned; ABANDONED = every attempt failed. */
+export const NOTIFICATION_STATUSES = ['QUEUED', 'SENT', 'FAILED', 'ABANDONED'] as const;
 export type NotificationStatus = (typeof NOTIFICATION_STATUSES)[number];

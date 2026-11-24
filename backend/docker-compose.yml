@@ -26,5 +26,26 @@ services:
   mailpit:
     image: axllent/mailpit:latest
     ports: ["1025:1025", "8025:8025"]
+  # `docker compose --profile app up`: API and worker in their own containers (the worker sends the e-mails).
+  api:
+    profiles: [app]
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://centre:centre@postgres:5432/centre_dev
+      REDIS_URL: redis://redis:6379
+      SMTP_HOST: mailpit
+    ports: ["3000:3000"]
+    depends_on: { postgres: { condition: service_healthy }, redis: { condition: service_started } }
+  worker:
+    profiles: [app]
+    build: .
+    command: ["node", "dist/worker.js"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://centre:centre@postgres:5432/centre_dev
+      REDIS_URL: redis://redis:6379
+      SMTP_HOST: mailpit
+    depends_on: [api]
 volumes:
   pgdata:
