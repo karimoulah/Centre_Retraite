@@ -48,3 +48,23 @@ describe('Security headers, CSRF origin check and request limits (B13-01)', () =
     expect(last).toBe(429);
   });
 });
+
+describe('Visitor address behind the Next.js server (B13-01)', () => {
+  let t: TestApp;
+  beforeAll(async () => {
+    process.env.THROTTLE_ENABLED = 'true';
+    t = await createTestApp();
+  });
+  afterAll(async () => {
+    process.env.THROTTLE_ENABLED = 'false';
+    await t.app.close();
+  });
+
+  it('counts sign-in attempts per visitor, not per frontend server', async () => {
+    const attempt = (ip: string) =>
+      request(t.http).post('/api/v1/auth/login').set('X-Forwarded-For', ip).send({ email: 'x@exemple.ca', password: 'Mauvais123456' });
+    for (let i = 0; i < 10; i += 1) await attempt('203.0.113.7');
+    expect((await attempt('203.0.113.7')).status).toBe(429);
+    expect((await attempt('198.51.100.4')).status).toBe(401);
+  });
+});

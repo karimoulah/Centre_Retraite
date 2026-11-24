@@ -36,6 +36,8 @@ export const envSchema = z
     /** Requests per minute and per IP address on every route (stricter limits on sign-in and public forms). */
     THROTTLE_LIMIT: z.coerce.number().int().positive().default(300),
     THROTTLE_ENABLED: bool(true),
+    /** Proxies whose X-Forwarded-For is trusted for the client address (Express "trust proxy"): the Next.js server and the host's load balancer. */
+    TRUST_PROXY: z.string().default('loopback, linklocal, uniquelocal'),
     SWAGGER_ENABLED: z.enum(['true', 'false', '1', '0']).optional(),
     LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   })

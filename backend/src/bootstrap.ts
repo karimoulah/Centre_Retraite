@@ -1,4 +1,5 @@
 import type { INestApplication } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
@@ -13,6 +14,8 @@ export function configureApp(app: INestApplication): INestApplication {
   const env = app.get<Env>(ENV);
 
   app.setGlobalPrefix(API_PREFIX);
+  // Every browser call goes through the Next.js server: per-IP limits must see the visitor's address, not the server's.
+  (app as NestExpressApplication).set('trust proxy', env.TRUST_PROXY);
   app.use(helmet());
   app.use(cookieParser());
   // Only the frontend may call the API from a browser, with its session cookies.
