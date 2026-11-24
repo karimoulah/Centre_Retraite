@@ -3,6 +3,7 @@ import request from 'supertest';
 import { User } from '../../src/database/entities';
 import { createTestApp, type TestApp } from '../setup/app';
 import { createUser, TEST_PASSWORD } from '../factories/users';
+import { as, loginAs } from '../setup/auth';
 
 const cookieOf = (setCookie: string[] | string, name: string) =>
   ([] as string[]).concat(setCookie).find((c) => c.startsWith(`${name}=`))!.split(';')[0];
@@ -12,15 +13,16 @@ describe('Session: me, refresh, logout (B1-02)', () => {
   beforeAll(async () => (t = await createTestApp()));
   afterAll(() => t.app.close());
 
-  async function signIn(roles: ('ADMIN' | 'MEMBER')[] = ['MEMBER']) {
-    const user = await createUser(t.dataSource, { roles });
+  async function signIn() {
+    const user = await createUser(t.dataSource, { roles: ['MEMBER'] });
     const res = await request(t.http).post('/api/v1/auth/login').send({ email: user.email, password: TEST_PASSWORD }).expect(200);
     return { user, access: cookieOf(res.headers['set-cookie'], 'access_token'), refresh: cookieOf(res.headers['set-cookie'], 'refresh_token') };
   }
 
   it('GET /auth/me returns the signed-in user', async () => {
-    const { user, access } = await signIn(['ADMIN']);
-    const res = await request(t.http).get('/api/v1/auth/me').set('Cookie', access).expect(200);
+    const session = await loginAs(t, 'ADMIN');
+    const { user } = session;
+    const res = await as(t, session).get('/auth/me').expect(200);
     expect(res.body).toMatchObject({ id: user.id, email: user.email, roles: ['ADMIN'], memberId: null });
   });
 

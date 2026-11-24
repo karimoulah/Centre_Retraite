@@ -3,7 +3,7 @@ import request from 'supertest';
 import { IS_PUBLIC } from '../../src/common/public.decorator';
 import { ROLES_KEY } from '../../src/common/roles.decorator';
 import { createTestApp, type TestApp } from '../setup/app';
-import { createUser, TEST_PASSWORD } from '../factories/users';
+import { loginAs } from '../setup/auth';
 
 type Route = { method: string; path: string; isPublic: boolean; roles: string[] };
 
@@ -59,9 +59,7 @@ describe('Global guards (B1-08)', () => {
 
   it('refuses every role-restricted route to a user without the role (403)', async () => {
     const restricted = routes.filter((r) => !r.isPublic && r.roles.length);
-    const user = await createUser(t.dataSource, { roles: [] });
-    const login = await request(t.http).post('/api/v1/auth/login').send({ email: user.email, password: TEST_PASSWORD });
-    const cookie = login.headers['set-cookie'];
+    const { cookies: cookie } = await loginAs(t, []);
     for (const route of restricted) {
       const res = await request(t.http)[route.method.toLowerCase() as 'get'](route.path).set('Cookie', cookie);
       expect({ route: `${route.method} ${route.path}`, status: res.status }).toEqual({
