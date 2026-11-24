@@ -36,3 +36,10 @@ export class CreateIncomeDto extends createZodDto(incomeSchema) {}
 export class UpdateEntryDto extends createZodDto(
   entryFields.extend({ contributorId: z.uuid().nullable(), supplier: optional(160) }).partial().strict(),
 ) {}
+
+export class CreateExpenseDto extends createZodDto(
+  entryFields.extend({ supplier: z.string().trim().min(1, 'Le fournisseur est obligatoire.').max(160) }),
+) {}
+export class RejectExpenseDto extends createZodDto(
+  z.object({ reason: z.string().trim().min(5, 'Le motif est obligatoire (5 caractères minimum).').max(500) }),
+) {}

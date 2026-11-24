@@ -7,12 +7,16 @@ import { UuidParam } from '../../../common/uuid.pipe';
 import type { User } from '../../../database/entities';
 import { CreateIncomeDto, UpdateEntryDto } from './entries.schemas';
 import { EntriesService } from './entries.service';
+import { ExpensesService } from './expenses';
 
 @ApiTags('finance')
 @Roles('FINANCE')
 @Controller('entries')
 export class EntriesController {
-  constructor(private readonly entries: EntriesService) {}
+  constructor(
+    private readonly entries: EntriesService,
+    private readonly expenses: ExpensesService,
+  ) {}
 
   /** New income (DRAFT). Expenses use POST /expenses. */
   @Post()
@@ -22,7 +26,7 @@ export class EntriesController {
 
   @Patch(':id')
   update(@Param('id', UuidParam) id: string, @Body() body: UpdateEntryDto) {
-    return this.entries.updateDraft(id, body);
+    return this.entries.updateDraft(id, body, (entry) => this.expenses.resubmitIfNeeded(entry));
   }
 
   @HttpCode(204)
