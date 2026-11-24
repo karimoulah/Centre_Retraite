@@ -35,3 +35,14 @@ export class UpdateMemberDto extends createZodDto(
     })
     .partial(),
 ) {}
+
+/** PATCH /me/profile: the member may only change how to reach them. */
+export class UpdateMyProfileDto extends createZodDto(z.object({ phone, address }).partial().strict()) {}
+
+/** PUT /me/consents: only the keys sent change. */
+export class UpdateConsentsDto extends createZodDto(
+  z
+    .object({ birthdayWishes: z.boolean(), newsletter: z.boolean(), testimonialPublication: z.boolean() })
+    .partial()
+    .strict(),
+) {}
