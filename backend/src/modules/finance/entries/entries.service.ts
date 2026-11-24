@@ -4,6 +4,7 @@ import { AppError, conflict, fieldError, notFound } from '../../../common/app-er
 import { Tx } from '../../../common/transaction/transaction.service';
 import { paginate } from '../../../common/pagination';
 import { AuditLog, Category, Contributor, Entry, type EntryDirection } from '../../../database/entities';
+import { StorageService } from '../../../infrastructure/storage/storage.service';
 import { fullName } from '../../users/user.mapper';
 import { AuditService } from '../../audit/audit.service';
 import type { CreateIncomeDto, ListEntriesQuery, UpdateEntryDto } from './entries.schemas';
@@ -25,6 +26,7 @@ export class EntriesService {
   constructor(
     private readonly tx: Tx,
     private readonly audit: AuditService,
+    private readonly storage: StorageService,
   ) {}
 
   /** New income, always a DRAFT: it counts in the reports only once validated. */
@@ -119,8 +121,12 @@ export class EntriesService {
       .where('a.entity_type = :type AND a.entity_id = :id', { type: 'Entry', id })
       .orderBy('a.id', 'ASC')
       .getMany();
+    const view = toEntry(entry, reversedBy);
+    // Short-lived link (5 minutes): the receipt stays private.
+    const url = entry.attachmentKey ? await this.storage.signDownload(entry.attachmentKey, entry.attachmentName ?? 'piece', 300) : null;
     return {
-      ...toEntry(entry, reversedBy),
+      ...view,
+      attachment: view.attachment && { ...view.attachment, url },
       history: history.map((h) => ({
         at: h.at.toISOString(),
         action: h.action,

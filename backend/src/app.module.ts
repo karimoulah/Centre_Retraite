@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { LoggingModule } from './infrastructure/logging/logging.module';
 import { MailModule } from './infrastructure/mail/mail.module';
 import { RateLimitModule } from './infrastructure/rate-limit/rate-limit.module';
+import { StorageModule } from './infrastructure/storage/storage.module';
 import { TurnstileModule } from './infrastructure/turnstile/turnstile.module';
 import { RedisModule } from './infrastructure/redis/redis.module';
 import { AuditModule } from './modules/audit/audit.module';
@@ -20,5 +21,5 @@ import { MembershipsModule } from './modules/memberships/memberships.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
 
-@Module({ imports: [ConfigModule, LoggingModule, CommonModule, SecurityModule, DatabaseModule, RedisModule, MailModule, TurnstileModule, RateLimitModule, NotificationsModule, AuditModule, HealthModule, AuthModule, UsersModule, SettingsModule, MembershipsModule, MembersModule, ContactModule, FinanceModule] })
+@Module({ imports: [ConfigModule, LoggingModule, CommonModule, SecurityModule, DatabaseModule, RedisModule, MailModule, TurnstileModule, RateLimitModule, StorageModule, NotificationsModule, AuditModule, HealthModule, AuthModule, UsersModule, SettingsModule, MembershipsModule, MembersModule, ContactModule, FinanceModule] })
 export class AppModule {}

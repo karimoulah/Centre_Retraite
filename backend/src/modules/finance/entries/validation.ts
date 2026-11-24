@@ -41,6 +41,9 @@ export class ValidationService {
       await this.expenses.resubmitIfNeeded(entry);
       return toEntry(await this.entries.find(id));
     }
+    if (entry.direction === 'EXPENSE' && !entry.attachmentKey) {
+      throw conflict('ATTACHMENT_REQUIRED', 'Joignez la facture ou le reçu avant de valider cette dépense.');
+    }
     await this.tx.repo(Entry).update(id, { status: 'VALIDATED', validatedById: userId, validatedAt: new Date() });
     const validated = await this.entries.find(id);
     await this.audit.record({

@@ -1,4 +1,4 @@
-import { AuditLog } from '../../src/database/entities';
+import { AuditLog, Entry } from '../../src/database/entities';
 import { createCategory, today } from '../factories/finance';
 import { createTestApp, type TestApp } from '../setup/app';
 import { as, loginAs, type SignedIn } from '../setup/auth';
@@ -45,6 +45,7 @@ describe('POST /entries/:id/validate and /reverse (B6-10)', () => {
     const blocked = await as(t, finance).post(`/entries/${entry.id}/validate`).expect(409);
     expect(blocked.body.code).toBe('APPROVAL_REQUIRED');
     await as(t, other).post(`/expenses/${entry.id}/approve`).expect(200);
+    await t.dataSource.getRepository(Entry).update(entry.id, { attachmentKey: `entries/${entry.id}/f.pdf`, attachmentName: 'f.pdf' });
     await as(t, finance).post(`/entries/${entry.id}/validate`).expect(200);
   });
 
