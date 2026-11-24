@@ -84,7 +84,10 @@ test.describe('saisie d’une recette et d’une dépense', () => {
     await gotoReady(page, '/backoffice/finance/expenses/new');
     // Retried: on a slow runner the input can be re-rendered right after hydration and lose the file.
     await expect(async () => {
-      await page.getByLabel('Pièce justificative').setInputFiles({ name: 'note.txt', mimeType: 'text/plain', buffer: Buffer.from('x') });
+      // Through the browser's file chooser, as a person would pick the file.
+      const chooser = page.waitForEvent('filechooser');
+      await page.getByLabel('Pièce justificative').click();
+      await (await chooser).setFiles({ name: 'note.txt', mimeType: 'text/plain', buffer: Buffer.from('x') });
       await expect(page.getByText('Formats acceptés : PDF, JPG ou PNG.')).toBeVisible({ timeout: 2_000 });
     }).toPass({ timeout: 15_000 });
     await expect(page.getByRole('button', { name: 'Enregistrer la dépense' })).toBeDisabled();
