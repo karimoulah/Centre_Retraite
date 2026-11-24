@@ -1,6 +1,8 @@
 import { createZodDto } from 'nestjs-zod';
 
+import { listQuerySchema } from '../../../common/pagination';
 import { z } from '../../../common/zod';
+import { ENTRY_DIRECTIONS, ENTRY_STATUSES, PAYMENT_METHODS } from '../../../database/entities';
 
 /** Up to 1 000 000 $; the frontend sends dollars converted to cents. */
 export const amountCents = z
@@ -42,4 +44,19 @@ export class CreateExpenseDto extends createZodDto(
 ) {}
 export class RejectExpenseDto extends createZodDto(
   z.object({ reason: z.string().trim().min(5, 'Le motif est obligatoire (5 caractères minimum).').max(500) }),
+) {}
+
+export class ListEntriesQuery extends createZodDto(
+  listQuerySchema
+    .extend({
+      from: z.iso.date().optional(),
+      to: z.iso.date().optional(),
+      categoryId: z.uuid().optional(),
+      contributorId: z.uuid().optional(),
+      direction: z.enum(ENTRY_DIRECTIONS).optional(),
+      status: z.enum(ENTRY_STATUSES).optional(),
+      paymentMethod: z.enum(PAYMENT_METHODS).optional(),
+      project: z.string().trim().max(120).optional(),
+    })
+    .refine((q) => !q.from || !q.to || q.from <= q.to, { message: 'La date de fin doit suivre la date de début.', path: ['to'] }),
 ) {}

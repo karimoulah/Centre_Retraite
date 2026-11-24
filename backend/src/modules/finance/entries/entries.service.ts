@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 
 import { AppError, conflict, fieldError, notFound } from '../../../common/app-error';
 import { Tx } from '../../../common/transaction/transaction.service';
-import { Category, Contributor, Entry, type EntryDirection } from '../../../database/entities';
+import { paginate } from '../../../common/pagination';
+import { AuditLog, Category, Contributor, Entry, type EntryDirection } from '../../../database/entities';
+import { fullName } from '../../users/user.mapper';
 import { AuditService } from '../../audit/audit.service';
-import type { CreateIncomeDto, UpdateEntryDto } from './entries.schemas';
+import type { CreateIncomeDto, ListEntriesQuery, UpdateEntryDto } from './entries.schemas';
 import { toEntry } from './entry.mapper';
 
 export const ENTRY_RELATIONS = { category: true, contributor: true, reverses: true, createdBy: true, decidedBy: true, validatedBy: true } as const;
@@ -60,6 +62,73 @@ export class EntriesService {
     if (entry.status !== 'DRAFT') throw this.notDraft();
     await this.tx.repo(Entry).delete(id);
     await this.audit.record({ action: 'ENTRY_DELETED', entityType: 'Entry', entityId: id, entityLabel: entry.reference, before: snapshot(entry) });
+  }
+
+  /**
+   * Filtered list with the totals of the whole selection (not only the page):
+   * income, expenses and balance in cents. Reversals are negative, so they cancel their entry.
+   */
+  async list(query: ListEntriesQuery) {
+    const qb = this.tx.repo(Entry).createQueryBuilder('e');
+    if (query.from) qb.andWhere('e.entry_date >= :from', { from: query.from });
+    if (query.to) qb.andWhere('e.entry_date <= :to', { to: query.to });
+    if (query.categoryId) qb.andWhere('e.category_id = :categoryId', { categoryId: query.categoryId });
+    if (query.contributorId) qb.andWhere('e.contributor_id = :contributorId', { contributorId: query.contributorId });
+    if (query.direction) qb.andWhere('e.direction = :direction', { direction: query.direction });
+    if (query.status) qb.andWhere('e.status = :status', { status: query.status });
+    if (query.paymentMethod) qb.andWhere('e.payment_method = :paymentMethod', { paymentMethod: query.paymentMethod });
+    if (query.project) qb.andWhere('e.project ILIKE :project', { project: `%${query.project}%` });
+    if (query.q) qb.andWhere('(e.reference ILIKE :q OR e.description ILIKE :q OR e.supplier ILIKE :q)', { q: `%${query.q}%` });
+
+    const sums = await qb
+      .clone()
+      .select('count(*)', 'count')
+      .addSelect("coalesce(sum(e.amount_cents) FILTER (WHERE e.direction = 'INCOME'), 0)", 'income')
+      .addSelect("coalesce(sum(e.amount_cents) FILTER (WHERE e.direction = 'EXPENSE'), 0)", 'expense')
+      .getRawOne<{ count: string; income: string; expense: string }>();
+    const totals = {
+      count: Number(sums?.count ?? 0),
+      incomeCents: Number(sums?.income ?? 0),
+      expenseCents: Number(sums?.expense ?? 0),
+      balanceCents: Number(sums?.income ?? 0) - Number(sums?.expense ?? 0),
+    };
+
+    for (const [name, alias] of Object.entries({ category: 'c', contributor: 'k', reverses: 'r', createdBy: 'cb', decidedBy: 'db', validatedBy: 'vb' })) {
+      qb.leftJoinAndSelect(`e.${name}`, alias);
+    }
+    const page = await paginate(
+      qb,
+      { ...query, q: undefined },
+      {
+        sortable: { entryDate: 'e.entryDate', reference: 'e.reference', amount: 'e.amountCents', createdAt: 'e.createdAt', status: 'e.status' },
+        defaultSort: { key: 'entryDate', order: 'desc' },
+      },
+      (e) => toEntry(e),
+    );
+    return { ...page, totals };
+  }
+
+  /** Detail: the entry, its reversal (if corrected) and its history from the audit log. */
+  async detail(id: string) {
+    const entry = await this.find(id);
+    const reversedBy = await this.tx.repo(Entry).findOneBy({ reversesId: id });
+    const history = await this.tx
+      .repo(AuditLog)
+      .createQueryBuilder('a')
+      .leftJoinAndSelect('a.actor', 'actor')
+      .where('a.entity_type = :type AND a.entity_id = :id', { type: 'Entry', id })
+      .orderBy('a.id', 'ASC')
+      .getMany();
+    return {
+      ...toEntry(entry, reversedBy),
+      history: history.map((h) => ({
+        at: h.at.toISOString(),
+        action: h.action,
+        actor: h.actor ? { id: h.actor.id, name: fullName(h.actor) } : null,
+        before: h.before,
+        after: h.after,
+      })),
+    };
   }
 
   async find(id: string): Promise<Entry> {
