@@ -1,0 +1,31 @@
+name: API CI
+on:
+  push: { branches: [main], paths: ['backend/**', '.github/workflows/api.yml'] }
+  pull_request: { branches: [main], paths: ['backend/**', '.github/workflows/api.yml'] }
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults: { run: { working-directory: backend } }
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env: { POSTGRES_USER: centre, POSTGRES_PASSWORD: centre, POSTGRES_DB: centre_test }
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U centre" --health-interval 5s --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { package_json_file: backend/package.json }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm, cache-dependency-path: backend/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm test:e2e

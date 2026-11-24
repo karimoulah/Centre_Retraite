@@ -53,6 +53,8 @@ async function send(path: string, options: ApiOptions) {
       accept: 'application/json',
       ...(options.body !== undefined ? { 'content-type': 'application/json' } : {}),
       cookie: cookieStore.toString(),
+      // The API limits requests per visitor: pass on the visitor's address, not this server's.
+      ...(await clientAddress()),
     },
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
     cache: 'no-store',
@@ -71,6 +73,12 @@ async function send(path: string, options: ApiOptions) {
  * The only entry point to the NestJS API. Forwards the session cookie, normalizes errors
  * into ApiError and, in mock mode (API_MODE=mock), answers from src/lib/api/mocks.
  */
+async function clientAddress(): Promise<Record<string, string>> {
+  const incoming = await headers();
+  const address = incoming.get('x-forwarded-for') ?? incoming.get('x-real-ip');
+  return address ? { 'x-forwarded-for': address } : {};
+}
+
 export async function api<T>(path: string, options: ApiOptions = {}): Promise<T> {
   const { status, data, setCookies } = await send(path, options);
 
