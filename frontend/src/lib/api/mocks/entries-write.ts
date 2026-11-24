@@ -279,3 +279,101 @@ export const entryWriteRoutes: MockRoute[] = [
     },
   },
 ];
+
+export const entryDecisionRoutes: MockRoute[] = [
+  {
+    method: 'POST',
+    path: '/entries/:id/validate',
+    handler: (request) => {
+      const me = guard(request, 'FINANCE');
+      if (isResponse(me)) return me;
+      const e = findEntry(request.params.id);
+      if (!e) return fail(404, 'NOT_FOUND', 'Écriture introuvable.');
+      if (e.status === 'VALIDATED')
+        return fail(409, 'ALREADY_VALIDATED', 'Cette écriture est déjà validée.');
+      if (e.status === 'SUBMITTED')
+        return fail(
+          409,
+          'APPROVAL_REQUIRED',
+          'Cette dépense doit d’abord être approuvée par une autre personne.',
+        );
+      if (e.status === 'REJECTED')
+        return fail(
+          409,
+          'ENTRY_REJECTED',
+          'Cette dépense a été refusée : elle ne peut pas être validée.',
+        );
+      if (e.direction === 'EXPENSE' && !e.attachment)
+        return fail(
+          409,
+          'ATTACHMENT_REQUIRED',
+          'Joignez la facture ou le reçu avant de valider cette dépense.',
+        );
+      const before = e.status;
+      Object.assign(e, {
+        status: 'VALIDATED',
+        validatedBy: actorOf(me),
+        validatedAt: new Date().toISOString(),
+      });
+      record(e, actorOf(me), 'ENTRY_VALIDATED', { status: before }, snapshot(e));
+      return ok(e);
+    },
+  },
+  {
+    method: 'POST',
+    path: '/entries/:id/reverse',
+    handler: (request) => {
+      const me = guard(request, 'FINANCE');
+      if (isResponse(me)) return me;
+      const e = findEntry(request.params.id);
+      if (!e) return fail(404, 'NOT_FOUND', 'Écriture introuvable.');
+      const reason = (request.body as { reason?: string })?.reason?.trim() ?? '';
+      if (reason.length < 5)
+        return fail(422, 'VALIDATION_FAILED', 'Le motif est obligatoire.', [
+          { field: 'reason', message: 'Le motif est obligatoire (5 caractères minimum).' },
+        ]);
+      if (e.status !== 'VALIDATED')
+        return fail(
+          409,
+          'NOT_VALIDATED',
+          'Seule une écriture validée se contrepasse ; un brouillon se modifie.',
+        );
+      if (e.reverses)
+        return fail(409, 'CANNOT_REVERSE_REVERSAL', 'Une contrepassation ne se contrepasse pas.');
+      if (e.reversedBy)
+        return fail(409, 'ALREADY_REVERSED', 'Cette écriture a déjà été contrepassée.');
+      const now = new Date().toISOString();
+      const reversal: Entry = {
+        ...e,
+        id: `e-${Date.now()}`,
+        reference: nextReference(),
+        amountCents: -e.amountCents,
+        entryDate: today(),
+        description: `Contrepassation de ${e.reference}`,
+        attachment: null,
+        reverses: { id: e.id, reference: e.reference },
+        reversedBy: null,
+        reversalReason: reason,
+        createdBy: actorOf(me),
+        createdAt: now,
+        decidedBy: null,
+        decidedAt: null,
+        validatedBy: actorOf(me),
+        validatedAt: now,
+      };
+      e.reversedBy = { id: reversal.id, reference: reversal.reference };
+      entries().unshift(reversal);
+      record(e, actorOf(me), 'ENTRY_REVERSED', null, {
+        reversalId: reversal.id,
+        reversalReference: reversal.reference,
+        reason,
+      });
+      record(reversal, actorOf(me), 'ENTRY_CREATED', null, {
+        ...snapshot(reversal),
+        reverses: e.reference,
+        reason,
+      });
+      return created(reversal);
+    },
+  },
+];

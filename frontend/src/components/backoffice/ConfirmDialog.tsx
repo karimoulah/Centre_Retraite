@@ -2,6 +2,7 @@
 
 import { useId, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import {
   AlertDialog,
@@ -57,6 +58,7 @@ export function ConfirmDialog({
     if (result.ok) {
       setOpen(false);
       setText('');
+      if (result.message) toast.success(result.message);
     } else {
       setError(result);
     }

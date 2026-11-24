@@ -11,14 +11,19 @@ const pick = async (page: import('@playwright/test').Page, label: string, option
 test.describe('saisie d’une recette et d’une dépense', () => {
   test.beforeEach(async ({ page }) => loginAs(page, 'finance'));
 
-  test('une recette en dollars est envoyée en cents, avec un contributeur trouvé par recherche', async ({ page }) => {
+  test('une recette en dollars est envoyée en cents, avec un contributeur trouvé par recherche', async ({
+    page,
+  }) => {
     await gotoReady(page, '/backoffice/finance/entries/new');
     await expectNoA11yViolations(page);
     await page.getByLabel('Montant ($)').fill('125,50');
     await pick(page, 'Catégorie', 'Cotisations des membres');
     await pick(page, 'Mode de paiement', 'Chèque');
     await page.getByLabel('Rechercher un contributeur').fill('Lavoie');
-    await page.getByRole('list', { name: 'Contributeurs trouvés' }).getByRole('button', { name: /Robert Lavoie/ }).click();
+    await page
+      .getByRole('list', { name: 'Contributeurs trouvés' })
+      .getByRole('button', { name: /Robert Lavoie/ })
+      .click();
     const description = `Cotisation ${Date.now()}`;
     await page.getByLabel('Description').fill(description);
     await page.getByRole('button', { name: 'Enregistrer la recette' }).click();
@@ -27,7 +32,9 @@ test.describe('saisie d’une recette et d’une dépense', () => {
     await expect(page.getByRole('table').getByText(/125,50\s\$/)).toBeVisible();
   });
 
-  test('seules les catégories du bon sens sont proposées, et le montant est vérifié', async ({ page }) => {
+  test('seules les catégories du bon sens sont proposées, et le montant est vérifié', async ({
+    page,
+  }) => {
     await gotoReady(page, '/backoffice/finance/entries/new');
     await page.getByLabel('Catégorie').click();
     await expect(page.getByRole('option', { name: 'Loyer et charges' })).toHaveCount(0);
@@ -49,7 +56,9 @@ test.describe('saisie d’une recette et d’une dépense', () => {
     await expect(page.getByText('Entrez le montant.')).toHaveCount(0);
   });
 
-  test('une dépense au-delà du seuil part en approbation, avec sa facture envoyée et une barre de progression', async ({ page }) => {
+  test('une dépense au-delà du seuil part en approbation, avec sa facture envoyée et une barre de progression', async ({
+    page,
+  }) => {
     await gotoReady(page, '/backoffice/finance/expenses/new');
     await expect(page.getByText(/Au-delà de 500,00\s\$/)).toBeVisible();
     await page.getByLabel('Montant ($)').fill('640');
@@ -57,15 +66,25 @@ test.describe('saisie d’une recette et d’une dépense', () => {
     await pick(page, 'Mode de paiement', 'Carte');
     await page.getByLabel('Fournisseur').fill('Autobus Laval');
     await page.getByLabel('Description').fill('Sortie au Jardin botanique');
-    await page.getByLabel('Pièce justificative').setInputFiles({ name: 'facture.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n%%EOF\n') });
+    await page
+      .getByLabel('Pièce justificative')
+      .setInputFiles({
+        name: 'facture.pdf',
+        mimeType: 'application/pdf',
+        buffer: Buffer.from('%PDF-1.4\n%%EOF\n'),
+      });
     await page.getByRole('button', { name: 'Enregistrer la dépense' }).click();
-    await expect(page.getByText('Dépense enregistrée : elle attend l’approbation d’une autre personne.')).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByText('Dépense enregistrée : elle attend l’approbation d’une autre personne.'),
+    ).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/Ajoutez la pièce depuis la fiche/)).toHaveCount(0);
   });
 
   test('un fichier non accepté est refusé avant l’envoi', async ({ page }) => {
     await gotoReady(page, '/backoffice/finance/expenses/new');
-    await page.getByLabel('Pièce justificative').setInputFiles({ name: 'note.txt', mimeType: 'text/plain', buffer: Buffer.from('x') });
+    await page
+      .getByLabel('Pièce justificative')
+      .setInputFiles({ name: 'note.txt', mimeType: 'text/plain', buffer: Buffer.from('x') });
     await expect(page.getByText('Formats acceptés : PDF, JPG ou PNG.')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Enregistrer la dépense' })).toBeDisabled();
   });

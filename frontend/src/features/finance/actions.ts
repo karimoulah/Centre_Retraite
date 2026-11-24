@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 import { runAction, type ActionResult } from '@/lib/actions';
 import { api } from '@/lib/api/api';
@@ -195,4 +196,47 @@ export async function removeAttachmentAction(entryId: string): Promise<ActionRes
   );
   if (result.ok) revalidatePath(`${FINANCE}/entries/${entryId}`);
   return result;
+}
+
+/** Validation (F5-07): final, the entry then counts in the reports. */
+export async function validateEntryAction(id: string): Promise<ActionResult<Entry>> {
+  await requireRole('FINANCE');
+  const result = await runAction(
+    () => api<Entry>(`/entries/${id}/validate`, { method: 'POST' }),
+    'Écriture validée.',
+  );
+  if (result.ok && result.data?.status === 'SUBMITTED')
+    result.message =
+      'Le seuil a changé : la dépense attend maintenant l’approbation d’une autre personne.';
+  if (result.ok) revalidatePath(`${FINANCE}/entries`, 'layout');
+  return result;
+}
+
+/** Reversal (F5-08): creates the opposite entry and opens it. */
+export async function reverseEntryAction(
+  id: string,
+  reason?: string,
+): Promise<ActionResult<Entry>> {
+  await requireRole('FINANCE');
+  if (!reason || reason.trim().length < 5)
+    return { ok: false, message: 'Le motif doit contenir au moins 5 caractères.' };
+  let reversal: Entry | undefined;
+  const result = await runAction(async () => {
+    reversal = await api<Entry>(`/entries/${id}/reverse`, {
+      method: 'POST',
+      body: { reason: reason.trim() },
+    });
+    return reversal;
+  }, 'Contrepassation créée.');
+  if (!result.ok) return result;
+  revalidatePath(`${FINANCE}/entries`, 'layout');
+  redirect(`${FINANCE}/entries/${reversal!.id}?reversed=1`);
+}
+
+export async function deleteDraftAction(id: string): Promise<ActionResult> {
+  await requireRole('FINANCE');
+  const result = await runAction(() => api<void>(`/entries/${id}`, { method: 'DELETE' }));
+  if (!result.ok) return result;
+  revalidatePath(`${FINANCE}/entries`);
+  redirect(`${FINANCE}/entries`);
 }
