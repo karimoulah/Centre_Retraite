@@ -24,6 +24,7 @@ const CONSTRAINTS: Record<string, { code: string; field?: string; message: strin
   categories_name_key: { code: 'CATEGORY_EXISTS', field: 'name', message: 'Une catégorie porte déjà ce nom dans ce sens.' },
   contributors_email_key: { code: 'EMAIL_TAKEN', field: 'email', message: 'Un contributeur existe déjà avec ce courriel.' },
   contributors_member_id_key: { code: 'MEMBER_ALREADY_LINKED', field: 'memberId', message: 'Ce membre est déjà lié à un autre contributeur.' },
+  entries_reverses_id_key: { code: 'ALREADY_REVERSED', message: 'Cette écriture a déjà été contrepassée.' },
   consents_one_active: { code: 'CONSENT_ALREADY_ACTIVE', message: 'Ce consentement est déjà actif.' },
 };
 
@@ -31,6 +32,10 @@ const CONSTRAINTS: Record<string, { code: string; field?: string; message: strin
 const DB_RULES: Record<string, string> = {
   ALREADY_DECIDED: 'Cette demande a déjà été traitée.',
   CATEGORY_DIRECTION_FIXED: 'Le sens d’une catégorie ne peut pas changer.',
+  CATEGORY_DIRECTION_MISMATCH: 'Cette catégorie ne correspond pas au sens de l’écriture.',
+  ENTRY_LOCKED: 'Cette écriture est validée : elle ne peut plus être modifiée. Corrigez-la par une contrepassation.',
+  ENTRY_NOT_DRAFT: 'Seul un brouillon peut être modifié ou supprimé.',
+  REVERSAL_MISMATCH: 'Une contrepassation reprend exactement l’opposé d’une écriture validée.',
 };
 
 const fromDefaults = (status: number, message?: string, details?: unknown): ErrorBody => {

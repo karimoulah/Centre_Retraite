@@ -25,3 +25,11 @@ export type EntryDirection = (typeof ENTRY_DIRECTIONS)[number];
 
 export const CONTRIBUTOR_KINDS = ['INDIVIDUAL', 'ORGANIZATION'] as const;
 export type ContributorKind = (typeof CONTRIBUTOR_KINDS)[number];
+
+/** DRAFT → VALIDATED; an expense above the threshold goes SUBMITTED → APPROVED (or REJECTED) first. */
+export const ENTRY_STATUSES = ['DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED', 'VALIDATED'] as const;
+export type EntryStatus = (typeof ENTRY_STATUSES)[number];
+export const PAYMENT_METHODS = ['CASH', 'CHEQUE', 'CARD', 'TRANSFER', 'ONLINE', 'OTHER'] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+export const ENTRY_SOURCES = ['MANUAL', 'ONLINE'] as const;
+export type EntrySource = (typeof ENTRY_SOURCES)[number];
