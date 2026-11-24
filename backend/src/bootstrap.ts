@@ -3,6 +3,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 
+import { originCheck } from './common/security/origin.middleware';
 import { ENV, type Env } from './config/config.module';
 
 export const API_PREFIX = 'api/v1';
@@ -16,6 +17,7 @@ export function configureApp(app: INestApplication): INestApplication {
   app.use(cookieParser());
   // Only the frontend may call the API from a browser, with its session cookies.
   app.enableCors({ origin: [env.WEB_URL], credentials: true });
+  app.use(originCheck([env.WEB_URL]));
   app.enableShutdownHooks();
 
   if (env.SWAGGER_ENABLED) {

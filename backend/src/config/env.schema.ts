@@ -33,6 +33,9 @@ export const envSchema = z
     BREVO_SANDBOX: bool(true),
 
     TURNSTILE_SECRET_KEY: z.string().optional(),
+    /** Requests per minute and per IP address on every route (stricter limits on sign-in and public forms). */
+    THROTTLE_LIMIT: z.coerce.number().int().positive().default(300),
+    THROTTLE_ENABLED: bool(true),
     SWAGGER_ENABLED: z.enum(['true', 'false', '1', '0']).optional(),
     LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   })

@@ -1,5 +1,6 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { Public } from '../../common/public.decorator';
 import { ForgotPasswordDto, ResetPasswordDto } from './password.schemas';
@@ -12,6 +13,7 @@ export class PasswordController {
 
   /** Sends a reset link valid 1 hour if the account exists; same answer otherwise. */
   @Public()
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @Post('forgot')
   @HttpCode(200)
   forgot(@Body() body: ForgotPasswordDto) {

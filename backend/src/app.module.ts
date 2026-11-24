@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { CommonModule } from './common/common.module';
 import { ConfigModule } from './config/config.module';
+import { SecurityModule } from './common/security/security.module';
 import { DatabaseModule } from './database/database.module';
 import { LoggingModule } from './infrastructure/logging/logging.module';
 import { MailModule } from './infrastructure/mail/mail.module';
@@ -18,5 +19,5 @@ import { MembershipsModule } from './modules/memberships/memberships.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { UsersModule } from './modules/users/users.module';
 
-@Module({ imports: [ConfigModule, LoggingModule, CommonModule, DatabaseModule, RedisModule, MailModule, TurnstileModule, RateLimitModule, NotificationsModule, AuditModule, HealthModule, AuthModule, UsersModule, SettingsModule, MembershipsModule, MembersModule, ContactModule] })
+@Module({ imports: [ConfigModule, LoggingModule, CommonModule, SecurityModule, DatabaseModule, RedisModule, MailModule, TurnstileModule, RateLimitModule, NotificationsModule, AuditModule, HealthModule, AuthModule, UsersModule, SettingsModule, MembershipsModule, MembersModule, ContactModule] })
 export class AppModule {}
