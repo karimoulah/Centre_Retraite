@@ -1,11 +1,11 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/current-user.decorator';
 import { Roles } from '../../common/roles.decorator';
 import { UuidParam } from '../../common/uuid.pipe';
 import type { User } from '../../database/entities';
-import { CreateUserDto, ListUsersQuery, UpdateUserDto } from './users.schemas';
+import { CreateUserDto, ListUsersQuery, UpdateRolesDto, UpdateUserDto } from './users.schemas';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
@@ -32,6 +32,12 @@ export class UsersController {
   @Patch(':id')
   update(@Param('id', UuidParam) id: string, @Body() body: UpdateUserDto) {
     return this.users.update(id, body);
+  }
+
+  /** Replaces the whole list of roles. */
+  @Put(':id/roles')
+  setRoles(@Param('id', UuidParam) id: string, @Body() body: UpdateRolesDto, @CurrentUser() actor: User) {
+    return this.users.setRoles(id, body.roles, actor);
   }
 
   @Post(':id/deactivate')
