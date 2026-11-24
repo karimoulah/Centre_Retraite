@@ -1,7 +1,8 @@
 import { createZodDto } from 'nestjs-zod';
 
 import { z } from '../../common/zod';
-import { AGE_CATEGORIES } from '../../database/entities';
+import { listQuerySchema } from '../../common/pagination';
+import { AGE_CATEGORIES, MEMBERSHIP_STATUSES } from '../../database/entities';
 
 const optionalText = (max: number) =>
   z
@@ -31,3 +32,7 @@ export const membershipApplicationSchema = z.object({
   turnstileToken: z.string().min(1, 'La vérification anti-robot est obligatoire.').max(2048),
 });
 export class MembershipApplicationDto extends createZodDto(membershipApplicationSchema) {}
+
+export class ListMembershipsQuery extends createZodDto(
+  listQuerySchema.extend({ status: z.enum(MEMBERSHIP_STATUSES).optional() }),
+) {}

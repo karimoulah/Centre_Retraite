@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
 
-import { fieldError } from '../../common/app-error';
+import { fieldError, notFound } from '../../common/app-error';
+import { paginate } from '../../common/pagination';
 import { Tx } from '../../common/transaction/transaction.service';
-import { MembershipRequest } from '../../database/entities';
+import { AuditLog, MembershipRequest } from '../../database/entities';
 import { TurnstileService } from '../../infrastructure/turnstile/turnstile.service';
 import { AuditService } from '../audit/audit.service';
 import { MembersService } from '../members/members.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { SettingsService } from '../settings/settings.service';
 import { fullName } from '../users/user.mapper';
-import type { MembershipApplicationDto } from './memberships.schemas';
+import { toMembershipRequest } from './membership.mapper';
+import type { ListMembershipsQuery, MembershipApplicationDto } from './memberships.schemas';
 
 @Injectable()
 export class MembershipsService {
@@ -76,5 +78,44 @@ export class MembershipsService {
       `membership-approved:${id}`,
     );
     return this.tx.repo(MembershipRequest).findOneByOrFail({ id });
+  }
+
+  /** Back-office list: filter by status, search by name or e-mail, newest first by default. */
+  list(query: ListMembershipsQuery) {
+    const qb = this.tx.repo(MembershipRequest).createQueryBuilder('r').leftJoinAndSelect('r.decidedBy', 'd');
+    if (query.status) qb.andWhere('r.status = :status', { status: query.status });
+    return paginate(
+      qb,
+      query,
+      {
+        sortable: { submittedAt: 'r.submittedAt', name: 'r.lastName', email: 'r.email', status: 'r.status', decidedAt: 'r.decidedAt' },
+        defaultSort: { key: 'submittedAt', order: 'desc' },
+        search: ['r.email', 'r.firstName', 'r.lastName'],
+      },
+      toMembershipRequest,
+    );
+  }
+
+  /** One request with its history (submission, decision) read from the audit log. */
+  async get(id: string) {
+    const request = await this.tx.repo(MembershipRequest).findOne({ where: { id }, relations: { decidedBy: true } });
+    if (!request) throw notFound('Demande introuvable.');
+    const history = await this.tx
+      .repo(AuditLog)
+      .createQueryBuilder('a')
+      .leftJoinAndSelect('a.actor', 'actor')
+      .where('a.entity_type = :type AND a.entity_id = :id', { type: 'MembershipRequest', id })
+      .orderBy('a.at', 'ASC')
+      .addOrderBy('a.id', 'ASC')
+      .getMany();
+    return {
+      ...toMembershipRequest(request),
+      history: history.map((h) => ({
+        at: h.at.toISOString(),
+        action: h.action,
+        actor: h.actor ? { id: h.actor.id, name: fullName(h.actor) } : null,
+        after: h.after,
+      })),
+    };
   }
 }
