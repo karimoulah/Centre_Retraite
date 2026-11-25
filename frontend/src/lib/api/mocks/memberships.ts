@@ -30,6 +30,7 @@ export const members = () =>
       email: 'membre@lesaines.test',
       phone: '514 555-0142',
       address: '123, rue Exemple\nMontréal (Québec)',
+      sex: 'MALE',
       ageCategory: '75_84',
       birthDate: '1948-03-12',
       active: true,
@@ -44,6 +45,8 @@ export const members = () =>
       email: `${firstName.toLowerCase().normalize('NFD').replace(/[^a-z]/g, '')}.${lastNames[i].toLowerCase().normalize('NFD').replace(/[^a-z]/g, '')}@exemple.org`,
       phone: i % 3 === 0 ? null : `514 555-${String(1000 + i * 37).slice(0, 4)}`,
       address: null,
+      // firstNames alternates women's and men's names.
+      sex: i % 2 === 0 ? ('FEMALE' as const) : ('MALE' as const),
       ageCategory: categories[i % 4],
       birthDate: i % 2 === 0 ? `19${45 + (i % 20)}-0${(i % 9) + 1}-1${i % 9}` : null,
       active: i !== 5,
@@ -60,6 +63,7 @@ const application = (id: string, status: MembershipRequest['status'], firstName:
   email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@exemple.org`.normalize('NFD').replace(/[̀-ͯ]/g, ''),
   phone: '514 555-0199',
   address: undefined,
+  sex: 'FEMALE',
   ageCategory: '65_74',
   birthDate: null,
   birthdayWishesConsent: true,
@@ -75,10 +79,10 @@ const application = (id: string, status: MembershipRequest['status'], firstName:
 export const membershipRequests = () =>
   mockStore<MembershipRequest[]>('membership-requests', () => [
     application('r-1', 'PENDING', 'Hélène', 'Martel', 1, { ageCategory: '75_84', birthDate: '1949-06-02' }),
-    application('r-2', 'PENDING', 'Antoine', 'Rioux', 2),
+    application('r-2', 'PENDING', 'Antoine', 'Rioux', 2, { sex: 'MALE' }),
     application('r-3', 'PENDING', 'Monique', 'Sauvé', 3, { ageCategory: '85_PLUS' }),
     application('r-4', 'APPROVED', 'Paulette', 'Gingras', 12, { memberId: 'm-2' }),
-    application('r-5', 'REJECTED', 'Test', 'Robot', 15, { rejectionReason: 'Demande en double.' }),
+    application('r-5', 'REJECTED', 'Test', 'Robot', 15, { sex: 'MALE', rejectionReason: 'Demande en double.' }),
   ]);
 
 export const membershipSettings = () =>
@@ -94,6 +98,7 @@ function createMember(request: MembershipRequest): Member {
     email: request.email,
     phone: request.phone ?? null,
     address: request.address ?? null,
+    sex: request.sex,
     ageCategory: request.ageCategory,
     birthDate: request.birthDate ?? null,
     active: true,
@@ -118,6 +123,9 @@ export const membershipRoutes: MockRoute[] = [
     handler: ({ body }) => {
       const data = body as MembershipApplication;
       if (!data.turnstileToken) return fail(400, 'CAPTCHA_REQUIRED', 'La vérification anti-robot a échoué.');
+      if (data.sex !== 'MALE' && data.sex !== 'FEMALE') {
+        return fail(422, 'VALIDATION_FAILED', 'Certains champs sont invalides.', [{ field: 'sex', message: 'Choisissez Masculin ou Féminin.' }]);
+      }
       if (members().some((m) => m.email.toLowerCase() === data.email.toLowerCase())) {
         return fail(409, 'ALREADY_MEMBER', 'Cette adresse est déjà celle d’un membre.', [{ field: 'email', message: 'Cette adresse est déjà celle d’un membre. Connectez-vous à votre espace.' }]);
       }

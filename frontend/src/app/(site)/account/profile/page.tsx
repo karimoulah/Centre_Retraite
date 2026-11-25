@@ -4,7 +4,7 @@ import { DetailList } from '@/components/backoffice/DetailList';
 import { FormAlert } from '@/components/form';
 import { ProfileForm } from '@/features/account/components/ProfileForm';
 import { getMyProfile } from '@/features/account/queries';
-import { AGE_CATEGORY_LABELS } from '@/lib/api/contracts';
+import { AGE_CATEGORY_LABELS, SEX_LABELS } from '@/lib/api/contracts';
 import { isApiError } from '@/lib/api/errors';
 import { formatDate } from '@/lib/format';
 
@@ -30,6 +30,7 @@ export default async function ProfilePage() {
             { label: 'Nom', value: `${member.firstName} ${member.lastName}` },
             { label: 'Numéro de membre', value: member.memberNumber },
             { label: 'Courriel', value: member.email },
+            { label: 'Sexe', value: member.sex ? SEX_LABELS[member.sex] : null },
             { label: 'Catégorie d’âge', value: AGE_CATEGORY_LABELS[member.ageCategory] },
             { label: 'Membre depuis', value: formatDate(member.joinedAt) },
           ]}

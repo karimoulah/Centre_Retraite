@@ -12,6 +12,7 @@ export async function createMembershipRequest(ds: DataSource, overrides: Partial
       firstName: 'Paul',
       lastName: `Tremblay${n}`,
       email: `paul.${n}.${Date.now()}@exemple.ca`,
+      sex: 'MALE',
       ageCategory: '65_74',
       ...overrides,
     }),

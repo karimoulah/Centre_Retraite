@@ -8,7 +8,7 @@ import { FormAlert } from '@/components/form';
 import { MembershipDecision } from '@/features/memberships/components/MembershipDecision';
 import { MembershipStatusBadge } from '@/features/memberships/components/MembershipStatusBadge';
 import { getMembershipRequest } from '@/features/memberships/queries';
-import { AGE_CATEGORY_LABELS } from '@/lib/api/contracts';
+import { AGE_CATEGORY_LABELS, SEX_LABELS } from '@/lib/api/contracts';
 import { isApiError } from '@/lib/api/errors';
 import { formatDate, formatDateTime } from '@/lib/format';
 import { requireRole } from '@/lib/session';
@@ -61,6 +61,7 @@ export default async function MembershipRequestPage({ params }: Props) {
             { label: 'Courriel', value: request.email },
             { label: 'Téléphone', value: request.phone || null },
             { label: 'Adresse', value: request.address || null },
+            { label: 'Sexe', value: request.sex ? SEX_LABELS[request.sex] : null },
             { label: 'Catégorie d’âge', value: AGE_CATEGORY_LABELS[request.ageCategory] },
             { label: 'Date de naissance', value: request.birthDate ? formatDate(`${request.birthDate}T12:00:00`) : null },
             { label: 'Vœux d’anniversaire', value: yesNo(request.birthdayWishesConsent) },

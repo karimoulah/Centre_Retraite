@@ -2,7 +2,7 @@ import { createZodDto } from 'nestjs-zod';
 
 import { listQuerySchema } from '../../common/pagination';
 import { z } from '../../common/zod';
-import { AGE_CATEGORIES } from '../../database/entities';
+import { AGE_CATEGORIES, SEXES } from '../../database/entities';
 
 const nullableText = (max: number) =>
   z
@@ -27,6 +27,7 @@ export class UpdateMemberDto extends createZodDto(
       email: z.email().trim().toLowerCase(),
       phone,
       address,
+      sex: z.enum(SEXES),
       ageCategory: z.enum(AGE_CATEGORIES),
       birthDate: z.iso
         .date()

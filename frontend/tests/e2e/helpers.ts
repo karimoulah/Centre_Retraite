@@ -47,6 +47,7 @@ export async function submitApplication(page: Page) {
   await page.getByLabel('Prénom').fill('Simone');
   await page.getByRole('textbox', { name: 'Nom', exact: true }).fill(lastName);
   await page.getByLabel('Adresse courriel').fill(`${lastName.toLowerCase()}@example.org`);
+  await page.getByRole('radio', { name: 'Féminin' }).check();
   await page.getByRole('radio', { name: '65 à 74 ans' }).check();
   await page.getByRole('button', { name: 'Envoyer ma demande d’adhésion' }).click();
   await expect(page).toHaveURL(/\/membership\/confirmation/);

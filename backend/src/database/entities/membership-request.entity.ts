@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-import { AGE_CATEGORIES, MEMBERSHIP_STATUSES, type AgeCategory, type MembershipStatus } from './enums';
+import { AGE_CATEGORIES, MEMBERSHIP_STATUSES, type AgeCategory, SEXES, type Sex, type MembershipStatus } from './enums';
 import { User } from './user.entity';
 
 @Entity({ schema: 'app', name: 'membership_requests' })
@@ -12,6 +12,7 @@ export class MembershipRequest {
   @Column({ type: 'text', nullable: true }) phone!: string | null;
   @Column({ type: 'text', nullable: true }) address!: string | null;
   @Column({ name: 'age_category', type: 'enum', enum: AGE_CATEGORIES, enumName: 'age_category' }) ageCategory!: AgeCategory;
+  @Column({ type: 'enum', enum: SEXES, enumName: 'sex', nullable: true }) sex!: Sex | null;
   @Column({ name: 'birth_date', type: 'date', nullable: true }) birthDate!: string | null;
   @Column({ name: 'birthday_wishes_consent', default: false }) birthdayWishesConsent!: boolean;
   @Column({ name: 'newsletter_consent', default: false }) newsletterConsent!: boolean;

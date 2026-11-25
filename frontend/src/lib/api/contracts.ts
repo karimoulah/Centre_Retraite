@@ -104,6 +104,10 @@ export const AGE_CATEGORY_LABELS: Record<AgeCategory, string> = {
   '85_PLUS': '85 ans et plus',
 };
 
+export const SEXES = ['MALE', 'FEMALE'] as const;
+export type Sex = (typeof SEXES)[number];
+export const SEX_LABELS: Record<Sex, string> = { MALE: 'Masculin', FEMALE: 'Féminin' };
+
 export type MembershipStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 export const MEMBERSHIP_STATUS_LABELS: Record<MembershipStatus, string> = {
   PENDING: 'En attente',
@@ -118,6 +122,7 @@ export type MembershipApplication = {
   email: string;
   phone?: string;
   address?: string;
+  sex: Sex;
   ageCategory: AgeCategory;
   /** Optional: only used for birthday wishes. */
   birthDate?: string | null;
@@ -151,6 +156,8 @@ export type Member = {
   email: string;
   phone: string | null;
   address: string | null;
+  /** Empty for members registered before the field existed. */
+  sex: Sex | null;
   ageCategory: AgeCategory;
   birthDate: string | null;
   active: boolean;
@@ -161,7 +168,7 @@ export type Member = {
 export type MemberConsentKey = keyof Member['consents'];
 
 /** PATCH /members/:id (back-office) */
-export type UpdateMemberRequest = Partial<Pick<Member, 'firstName' | 'lastName' | 'email' | 'phone' | 'address' | 'ageCategory' | 'birthDate'>>;
+export type UpdateMemberRequest = Partial<Pick<Member, 'firstName' | 'lastName' | 'email' | 'phone' | 'address' | 'sex' | 'ageCategory' | 'birthDate'>>;
 /** PATCH /me/profile (member): only these fields are editable by the member. */
 export type UpdateMyProfileRequest = Pick<Member, 'phone' | 'address'>;
 /** PUT /me/consents */

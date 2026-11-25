@@ -91,6 +91,7 @@ async function demo() {
         email: 'membre@lesaines.test',
         phone: '514 555-0142',
         address: '123, rue Exemple\nMontréal (Québec)',
+        sex: 'MALE',
         ageCategory: '75_84',
         birthDate: '1948-03-12',
       }),
@@ -101,6 +102,7 @@ async function demo() {
         firstName: 'Paul',
         lastName: 'Côté',
         email: 'bloque@lesaines.test',
+        sex: 'MALE',
         ageCategory: '85_PLUS',
       }),
     );
@@ -112,6 +114,8 @@ async function demo() {
           lastName: LAST[i],
           email: `${ascii(firstName)}.${ascii(LAST[i])}@exemple.org`,
           phone: i % 3 === 0 ? null : `514 555-${1000 + i * 37}`,
+          // FIRST alternates women's and men's first names.
+          sex: i % 2 === 0 ? 'FEMALE' : 'MALE',
           ageCategory: CATEGORIES[i % 4],
           birthDate: i % 2 === 0 ? `19${45 + i}-0${(i % 9) + 1}-1${i % 9}` : null,
           active: i !== 5,
@@ -170,6 +174,7 @@ async function demo() {
           lastName,
           email: `${ascii(firstName)}.${ascii(lastName)}@exemple.org`,
           phone: '514 555-0199',
+          sex: 'FEMALE',
           ageCategory: '65_74',
           birthdayWishesConsent: true,
           submittedAt: daysAgo(days),
@@ -177,9 +182,9 @@ async function demo() {
         }),
       );
     await request('Hélène', 'Fortin', 1);
-    await request('Jacques', 'Ouellet', 3, { newsletterConsent: true, ageCategory: '75_84' });
+    await request('Jacques', 'Ouellet', 3, { newsletterConsent: true, sex: 'MALE', ageCategory: '75_84' });
     await request('Pierrette', 'Gagné', 6);
-    await request('Michel', 'Roy', 9, { ageCategory: '50_64' });
+    await request('Michel', 'Roy', 9, { sex: 'MALE', ageCategory: '50_64' });
     await request('Thérèse', 'Martin', 20, {
       status: 'REJECTED',
       decidedAt: daysAgo(19),
