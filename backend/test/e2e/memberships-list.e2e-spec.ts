@@ -31,10 +31,10 @@ describe('GET /memberships and /memberships/:id (B3-02)', () => {
   it('shows one request with its history', async () => {
     const created = await request(t.http)
       .post('/api/v1/memberships')
-      .send({ firstName: 'Rose', lastName: 'Dion', email: `rose.${Date.now()}@exemple.ca`, ageCategory: '75_84', turnstileToken: 'dev' })
+      .send({ firstName: 'Rose', lastName: 'Dion', email: `rose.${Date.now()}@exemple.ca`, sex: 'FEMALE', ageCategory: '75_84', turnstileToken: 'dev' })
       .expect(201);
     const res = await as(t, admin).get(`/memberships/${created.body.id}`).expect(200);
-    expect(res.body).toMatchObject({ id: created.body.id, firstName: 'Rose', status: 'PENDING', birthDate: null });
+    expect(res.body).toMatchObject({ id: created.body.id, firstName: 'Rose', sex: 'FEMALE', status: 'PENDING', birthDate: null });
     expect(res.body.history).toEqual([expect.objectContaining({ action: 'MEMBERSHIP_SUBMITTED', actor: null })]);
   });
 

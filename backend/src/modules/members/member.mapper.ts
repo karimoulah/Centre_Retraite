@@ -33,6 +33,7 @@ export const toMember = (m: Member) => ({
   email: m.email,
   phone: m.phone,
   address: m.address,
+  sex: m.sex,
   ageCategory: m.ageCategory,
   birthDate: m.birthDate,
   active: m.active,

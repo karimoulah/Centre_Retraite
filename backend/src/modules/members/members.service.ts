@@ -26,6 +26,7 @@ export class MembersService {
         email: request.email,
         phone: request.phone,
         address: request.address,
+        sex: request.sex,
         ageCategory: request.ageCategory,
         birthDate: request.birthDate,
       }),

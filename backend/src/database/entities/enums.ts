@@ -4,6 +4,8 @@ export const STAFF_ROLES: Role[] = ['ADMIN', 'FINANCE', 'TESTIMONIALS'];
 
 export const AGE_CATEGORIES = ['50_64', '65_74', '75_84', '85_PLUS'] as const;
 export type AgeCategory = (typeof AGE_CATEGORIES)[number];
+export const SEXES = ['MALE', 'FEMALE'] as const;
+export type Sex = (typeof SEXES)[number];
 
 export const MEMBERSHIP_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
 export type MembershipStatus = (typeof MEMBERSHIP_STATUSES)[number];

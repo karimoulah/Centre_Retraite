@@ -10,6 +10,7 @@ export const toMembershipRequest = (r: MembershipRequest) => ({
   email: r.email,
   phone: r.phone,
   address: r.address,
+  sex: r.sex,
   ageCategory: r.ageCategory,
   birthDate: r.birthDate,
   birthdayWishesConsent: r.birthdayWishesConsent,

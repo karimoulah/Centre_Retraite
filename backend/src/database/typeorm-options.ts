@@ -9,8 +9,9 @@ import { Contributors1765000000002 } from './migrations/1765000000002-Contributo
 import { Entries1765000000003 } from './migrations/1765000000003-Entries';
 import { Payments1765000000004 } from './migrations/1765000000004-Payments';
 import { ChatbotIndex1765000000005 } from './migrations/1765000000005-ChatbotIndex';
+import { Sex1765000000006 } from './migrations/1765000000006-Sex';
 
-export const migrations = [InitialSchema1764000000000, NotificationAbandoned1765000000000, Categories1765000000001, Contributors1765000000002, Entries1765000000003, Payments1765000000004, ChatbotIndex1765000000005];
+export const migrations = [InitialSchema1764000000000, NotificationAbandoned1765000000000, Categories1765000000001, Contributors1765000000002, Entries1765000000003, Payments1765000000004, ChatbotIndex1765000000005, Sex1765000000006];
 
 /** Single source of truth for the API, the CLI and the tests. synchronize is never used. */
 export function typeormOptions(env: Pick<Env, 'DATABASE_URL'>): DataSourceOptions {

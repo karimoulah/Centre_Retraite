@@ -2,7 +2,7 @@ import { createZodDto } from 'nestjs-zod';
 
 import { z } from '../../common/zod';
 import { listQuerySchema } from '../../common/pagination';
-import { AGE_CATEGORIES, MEMBERSHIP_STATUSES } from '../../database/entities';
+import { AGE_CATEGORIES, MEMBERSHIP_STATUSES, SEXES } from '../../database/entities';
 
 const optionalText = (max: number) =>
   z
@@ -19,6 +19,7 @@ export const membershipApplicationSchema = z.object({
   email: z.email().trim().toLowerCase(),
   phone: optionalText(30),
   address: optionalText(300),
+  sex: z.enum(SEXES, { message: 'Choisissez Masculin ou Féminin.' }),
   ageCategory: z.enum(AGE_CATEGORIES),
   /** Optional, only used for birthday wishes. */
   birthDate: z.iso
