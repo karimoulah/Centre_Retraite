@@ -20,10 +20,10 @@ export function ProfileForm({ member }: { member: Member }) {
         Mes coordonnées
       </h2>
       <FormErrorAlert result={formError} />
-      <FormField control={form.control} name="phone" label="Téléphone">
+      <FormField control={form.control} name="phone" label="Téléphone" required>
         {(props) => <Input {...props} value={String(props.value)} type="tel" autoComplete="tel" className="sm:w-80" />}
       </FormField>
-      <FormField control={form.control} name="address" label="Adresse postale">
+      <FormField control={form.control} name="address" label="Adresse postale" required>
         {(props) => <Textarea {...props} value={String(props.value)} rows={3} autoComplete="street-address" className="min-h-24" />}
       </FormField>
       <div>

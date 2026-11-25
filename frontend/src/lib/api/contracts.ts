@@ -120,11 +120,11 @@ export type MembershipApplication = {
   firstName: string;
   lastName: string;
   email: string;
+  /** Phone, address and birth date are required since November 2026; older requests may have none. */
   phone?: string;
   address?: string;
   sex: Sex;
   ageCategory: AgeCategory;
-  /** Optional: only used for birthday wishes. */
   birthDate?: string | null;
   birthdayWishesConsent: boolean;
   newsletterConsent: boolean;

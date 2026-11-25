@@ -11,6 +11,9 @@ test.describe('espace membre', () => {
     await gotoReady(page, '/account/profile');
     await expect(page.getByText('M-0001')).toBeVisible();
     await expect(page.getByRole('textbox', { name: /Courriel/ })).toHaveCount(0);
+    await page.getByLabel('Téléphone').fill('');
+    await page.getByRole('button', { name: 'Enregistrer' }).click();
+    await expect(page.getByText('Le téléphone est obligatoire.')).toBeVisible();
     await page.getByLabel('Téléphone').fill('514 555-0143');
     await page.getByRole('button', { name: 'Enregistrer' }).click();
     await expect(page.getByText('Vos coordonnées sont enregistrées.')).toBeVisible();

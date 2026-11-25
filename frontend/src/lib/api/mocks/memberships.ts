@@ -123,6 +123,11 @@ export const membershipRoutes: MockRoute[] = [
     handler: ({ body }) => {
       const data = body as MembershipApplication;
       if (!data.turnstileToken) return fail(400, 'CAPTCHA_REQUIRED', 'La vérification anti-robot a échoué.');
+      const missing = (['phone', 'address', 'birthDate'] as const).filter((key) => !String(data[key] ?? '').trim());
+      if (missing.length) {
+        const labels = { phone: 'Le téléphone est obligatoire.', address: 'L’adresse postale est obligatoire.', birthDate: 'La date de naissance est obligatoire.' };
+        return fail(422, 'VALIDATION_FAILED', 'Certains champs sont invalides.', missing.map((field) => ({ field, message: labels[field] })));
+      }
       if (data.sex !== 'MALE' && data.sex !== 'FEMALE') {
         return fail(422, 'VALIDATION_FAILED', 'Certains champs sont invalides.', [{ field: 'sex', message: 'Choisissez Masculin ou Féminin.' }]);
       }
