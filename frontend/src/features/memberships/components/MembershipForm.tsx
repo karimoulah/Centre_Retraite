@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { applyForMembershipAction } from '../actions';
 import { membershipSchema, type MembershipValues } from '../schemas';
 import { AgeCategoryField } from './AgeCategoryField';
+import { SexField } from './SexField';
 
 export function MembershipForm() {
   const [token, setToken] = useState<string | null>(null);
@@ -44,6 +45,11 @@ export function MembershipForm() {
             {(props) => <Input {...props} value={String(props.value)} type="tel" autoComplete="tel" />}
           </FormField>
         </div>
+        <Controller
+          control={form.control}
+          name="sex"
+          render={({ field, fieldState }) => <SexField value={field.value} onChange={field.onChange} error={fieldState.error?.message} />}
+        />
         <FormField control={form.control} name="address" label="Adresse postale">
           {(props) => <Textarea {...props} value={String(props.value)} rows={3} autoComplete="street-address" className="min-h-20" />}
         </FormField>

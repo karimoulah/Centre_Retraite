@@ -1,4 +1,4 @@
-import { AGE_CATEGORIES } from '@/lib/api/contracts';
+import { AGE_CATEGORIES, SEXES } from '@/lib/api/contracts';
 import { fields, z } from '@/lib/zod';
 
 const phone = z
@@ -21,6 +21,7 @@ export const membershipSchema = z.object({
   email: fields.email(),
   phone,
   address: fields.optionalText(300),
+  sex: z.enum(SEXES, { message: 'Choisissez Masculin ou Féminin.' }),
   ageCategory: z.enum(AGE_CATEGORIES, { message: 'Choisissez votre catégorie d’âge.' }),
   birthDate,
   birthdayWishesConsent: z.boolean(),
@@ -28,7 +29,10 @@ export const membershipSchema = z.object({
 });
 export type MembershipValues = z.infer<typeof membershipSchema>;
 
-export const memberSchema = membershipSchema.pick({ firstName: true, lastName: true, email: true, phone: true, address: true, ageCategory: true, birthDate: true });
+/** Back-office: the sex stays optional, members registered before the field have none. */
+export const memberSchema = membershipSchema
+  .pick({ firstName: true, lastName: true, email: true, phone: true, address: true, ageCategory: true, birthDate: true })
+  .extend({ sex: membershipSchema.shape.sex.optional() });
 export type MemberValues = z.infer<typeof memberSchema>;
 
 export const myProfileSchema = z.object({ phone, address: fields.optionalText(300) });

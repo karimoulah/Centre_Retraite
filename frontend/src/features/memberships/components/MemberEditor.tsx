@@ -13,6 +13,7 @@ import type { Member } from '@/lib/api/contracts';
 import { deactivateMemberAction, updateMemberAction } from '../actions';
 import { memberSchema, type MemberValues } from '../schemas';
 import { AgeCategoryField } from './AgeCategoryField';
+import { SexField } from './SexField';
 
 export function MemberEditor({ member }: { member: Member }) {
   const { form, onSubmit, formError } = useActionForm<MemberValues>({
@@ -24,6 +25,7 @@ export function MemberEditor({ member }: { member: Member }) {
       email: member.email,
       phone: member.phone ?? '',
       address: member.address ?? '',
+      sex: member.sex ?? undefined,
       ageCategory: member.ageCategory,
       birthDate: member.birthDate ?? '',
     },
@@ -53,6 +55,7 @@ export function MemberEditor({ member }: { member: Member }) {
         <FormField control={form.control} name="address" label="Adresse postale">
           {(props) => <Textarea {...props} value={String(props.value)} rows={3} className="min-h-20" />}
         </FormField>
+        <Controller control={form.control} name="sex" render={({ field, fieldState }) => <SexField value={field.value} onChange={field.onChange} error={fieldState.error?.message} />} />
         <Controller control={form.control} name="ageCategory" render={({ field, fieldState }) => <AgeCategoryField value={field.value} onChange={field.onChange} error={fieldState.error?.message} />} />
         <FormField control={form.control} name="birthDate" label="Date de naissance" description="Utilisée seulement pour les vœux d’anniversaire, si le membre y consent.">
           {(props) => <Input {...props} value={String(props.value)} type="date" className="w-full sm:w-64" />}

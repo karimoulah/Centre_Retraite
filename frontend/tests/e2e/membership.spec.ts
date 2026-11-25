@@ -14,6 +14,7 @@ test.describe('adhésion (portail)', () => {
     await gotoReady(page, '/membership');
     await page.getByRole('button', { name: 'Envoyer ma demande d’adhésion' }).click();
     await expect(page.getByText('Le prénom est obligatoire.')).toBeVisible();
+    await expect(page.getByText('Choisissez Masculin ou Féminin.')).toBeVisible();
     await expect(page.getByText('Choisissez votre catégorie d’âge.')).toBeVisible();
   });
 
@@ -22,6 +23,9 @@ test.describe('adhésion (portail)', () => {
     await page.getByLabel('Prénom').fill('Jeanne');
     await page.getByRole('textbox', { name: 'Nom', exact: true }).fill(`Essai${Date.now()}`);
     await page.getByLabel('Adresse courriel').fill(`jeanne+${Date.now()}@example.org`);
+    const sex = page.getByRole('group', { name: /Sexe/ });
+    await expect(sex.getByRole('radio')).toHaveCount(2);
+    await sex.getByRole('radio', { name: 'Féminin' }).check();
     await page.getByRole('radio', { name: '75 à 84 ans' }).check();
     await page.locator('input[type="date"]').fill('1950-05-20');
     await page.getByRole('checkbox', { name: /vœux d’anniversaire/ }).check();
@@ -35,6 +39,7 @@ test.describe('adhésion (portail)', () => {
     await page.getByLabel('Prénom').fill('Robert');
     await page.getByRole('textbox', { name: 'Nom', exact: true }).fill('Lavoie');
     await page.getByLabel('Adresse courriel').fill('membre@lesaines.test');
+    await page.getByRole('radio', { name: 'Masculin' }).check();
     await page.getByRole('radio', { name: '75 à 84 ans' }).check();
     await page.getByRole('button', { name: 'Envoyer ma demande d’adhésion' }).click();
     await expect(page.getByText('Cette adresse est déjà celle d’un membre. Connectez-vous à votre espace.')).toBeVisible();

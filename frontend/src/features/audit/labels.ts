@@ -31,6 +31,7 @@ export const FIELD_LABELS: Record<string, string> = {
   email: 'Courriel',
   phone: 'Téléphone',
   address: 'Adresse',
+  sex: 'Sexe',
   ageCategory: 'Catégorie d’âge',
   birthDate: 'Date de naissance',
   autoApprove: 'Approbation automatique',

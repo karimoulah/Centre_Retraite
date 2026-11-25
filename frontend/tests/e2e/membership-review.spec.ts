@@ -17,6 +17,7 @@ test.describe('demandes d’adhésion (back-office)', () => {
     const lastName = await submitApplication(page);
     await loginAs(page, 'admin');
     await openApplication(page, lastName);
+    await expect(page.getByText('Féminin').first()).toBeVisible();
     await page.getByRole('button', { name: 'Refuser' }).click();
     const dialog = page.getByRole('alertdialog');
     const confirm = dialog.getByRole('button', { name: 'Refuser la demande' });
