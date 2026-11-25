@@ -3,6 +3,7 @@ import { createZodDto } from 'nestjs-zod';
 import { listQuerySchema } from '../../common/pagination';
 import { z } from '../../common/zod';
 import { AGE_CATEGORIES, SEXES } from '../../database/entities';
+import { requiredPhone } from '../memberships/memberships.schemas';
 
 const nullableText = (max: number) =>
   z
@@ -38,7 +39,13 @@ export class UpdateMemberDto extends createZodDto(
 ) {}
 
 /** PATCH /me/profile: the member may only change how to reach them. */
-export class UpdateMyProfileDto extends createZodDto(z.object({ phone, address }).partial().strict()) {}
+/** The member can change them but not erase them: both are required since the membership form asks for them. */
+export class UpdateMyProfileDto extends createZodDto(
+  z
+    .object({ phone: requiredPhone, address: z.string().trim().min(1, 'L’adresse postale est obligatoire.').max(300) })
+    .partial()
+    .strict(),
+) {}
 
 /** PUT /me/consents: only the keys sent change. */
 export class UpdateConsentsDto extends createZodDto(

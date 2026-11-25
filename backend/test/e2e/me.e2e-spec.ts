@@ -21,8 +21,10 @@ describe('/me/profile and /me/consents (B4-02)', () => {
   });
 
   it('lets me change only my phone and address', async () => {
-    const res = await as(t, me).patch('/me/profile').send({ phone: '', address: '12 rue des Érables, Laval' }).expect(200);
-    expect(res.body).toMatchObject({ phone: null, address: '12 rue des Érables, Laval' });
+    const res = await as(t, me).patch('/me/profile').send({ phone: '438 555-0123', address: '12 rue des Érables, Laval' }).expect(200);
+    expect(res.body).toMatchObject({ phone: '438 555-0123', address: '12 rue des Érables, Laval' });
+    const blank = await as(t, me).patch('/me/profile').send({ phone: '', address: '' }).expect(422);
+    expect(blank.body.details.map((d: { field: string }) => d.field).sort()).toEqual(['address', 'phone']);
     await as(t, me).patch('/me/profile').send({ email: 'autre@exemple.ca' }).expect(422);
     const audit = await t.dataSource.getRepository(AuditLog).findOneByOrFail({ action: 'PROFILE_UPDATED', entityId: memberId });
     expect(audit.actorId).toBe(me.user.id);

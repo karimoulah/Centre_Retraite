@@ -22,7 +22,6 @@ export function MembershipForm() {
     defaultValues: { firstName: '', lastName: '', email: '', phone: '', address: '', birthDate: '', birthdayWishesConsent: false, newsletterConsent: false },
     successToast: false,
   });
-  const birthDate = form.watch('birthDate');
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-8" aria-label="Demande d’adhésion">
@@ -41,7 +40,7 @@ export function MembershipForm() {
           <FormField control={form.control} name="email" label="Adresse courriel" required>
             {(props) => <Input {...props} value={String(props.value)} type="email" autoComplete="email" />}
           </FormField>
-          <FormField control={form.control} name="phone" label="Téléphone">
+          <FormField control={form.control} name="phone" label="Téléphone" required>
             {(props) => <Input {...props} value={String(props.value)} type="tel" autoComplete="tel" />}
           </FormField>
         </div>
@@ -50,7 +49,7 @@ export function MembershipForm() {
           name="sex"
           render={({ field, fieldState }) => <SexField value={field.value} onChange={field.onChange} error={fieldState.error?.message} />}
         />
-        <FormField control={form.control} name="address" label="Adresse postale">
+        <FormField control={form.control} name="address" label="Adresse postale" required>
           {(props) => <Textarea {...props} value={String(props.value)} rows={3} autoComplete="street-address" className="min-h-20" />}
         </FormField>
       </fieldset>
@@ -66,7 +65,8 @@ export function MembershipForm() {
           control={form.control}
           name="birthDate"
           label="Date de naissance"
-          description="Facultative : elle sert uniquement à vous souhaiter bon anniversaire si vous l’acceptez ci-dessous. Elle n’est jamais affichée publiquement."
+          required
+          description="Elle n’est jamais affichée publiquement. Le Centre vous souhaite bon anniversaire seulement si vous l’acceptez ci-dessous."
         >
           {(props) => <Input {...props} value={String(props.value)} type="date" autoComplete="bday" className="w-full sm:w-64" />}
         </FormField>
@@ -82,7 +82,7 @@ export function MembershipForm() {
               checked={field.value}
               onChange={field.onChange}
               label="Je souhaite recevoir les vœux d’anniversaire du Centre"
-              description={birthDate ? 'Par courriel, le jour de votre anniversaire.' : 'Indiquez votre date de naissance ci-dessus pour les recevoir.'}
+              description="Par courriel, le jour de votre anniversaire."
             />
           )}
         />

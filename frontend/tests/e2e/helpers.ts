@@ -48,7 +48,10 @@ export async function submitApplication(page: Page) {
   await page.getByRole('textbox', { name: 'Nom', exact: true }).fill(lastName);
   await page.getByLabel('Adresse courriel').fill(`${lastName.toLowerCase()}@example.org`);
   await page.getByRole('radio', { name: 'Féminin' }).check();
+  await page.getByLabel('Téléphone').fill('514 555-0199');
+  await page.getByLabel('Adresse postale').fill('12, rue des Érables, Montréal');
   await page.getByRole('radio', { name: '65 à 74 ans' }).check();
+  await page.locator('input[type="date"]').fill('1956-08-30');
   await page.getByRole('button', { name: 'Envoyer ma demande d’adhésion' }).click();
   await expect(page).toHaveURL(/\/membership\/confirmation/);
   return lastName;
